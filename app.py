@@ -1,10 +1,14 @@
+import sys
+
 import psycopg2
 from dbinfo import *
 from flask import Flask, request, make_response, render_template, redirect
 
+
 app = Flask(__name__)
 try:
     conn = psycopg2.connect(host = host, user = user, password = password, dbname = dbname)
+    conn.set_client_encoding('UTF8')
 except:
     exit(-1);
 
@@ -34,12 +38,13 @@ def logout():
     resp.set_cookie('role', "")
     return resp
 
-@app.route('/list')
-def list():
+@app.route('/entity/<entity>', methods=['GET'])
+def list(entity):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM gatunki")
+    if (entity == 'artists'):
+        cur.execute("SELECT * FROM artists")
     records = cur.fetchall()
-    return render_template("listing.html", **locals())
+    return render_template("list_artists.html", **locals())
 
 
 if __name__ == '__main__':
