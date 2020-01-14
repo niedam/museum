@@ -1,11 +1,12 @@
 import psycopg2
+from dbinfo import *
 from flask import Flask, request, make_response, render_template, redirect
 
 app = Flask(__name__)
 try:
-    conn = psycopg2.connect("host='labdb' dbname='bd' user='nick' password='haslo'")
+    conn = psycopg2.connect(host = host, user = user, password = password, dbname = dbname)
 except:
-    print("Karamba");
+    exit(-1);
 
 @app.route('/', methods=['GET'])
 def main_page():
@@ -32,6 +33,13 @@ def logout():
     resp = make_response(redirect('/'), 302)
     resp.set_cookie('role', "")
     return resp
+
+@app.route('/list')
+def list():
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM gatunki")
+    records = cur.fetchall()
+    return render_template("listing.html", **locals())
 
 
 if __name__ == '__main__':
