@@ -1,0 +1,66 @@
+{% extends "public_template.html" %}
+
+{% block title %}{{ data[1] }} - Exhibits{% endblock %}
+
+{% block category %}exhibits{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+        <div class="section-block" id="basicform">
+            <h3 class="section-title">{{ data[1] }} - Exhibits</h3>
+            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+        </div>
+        <div class="card">
+            <h5 class="card-header">Exhibit</h5>
+            <div class="card-body">
+                <form>
+
+                <div class="form-group">
+                    <label for="title" class="col-form-label">Title</label>
+                    <input id="title" {% if role != 'staff' %}readonly{% endif %} value="{{ data[1] }}" type="text" class="form-control form-control-lg">
+                </div>
+                    <div class="form-group">
+                        <label for="input-select">Artist</label>
+                        <div class="input-group mb-3">
+                            <select class="form-control form-control-lg" {% if role != 'staff' %}disabled{% endif %} id="artist" style="height: 100%">
+                            {% for a in artists %}
+                            <option value="{{ a.0 }}" {% if data.2 == a.0 %}selected{% endif %}>{{ a.1 }} {{ a.2 }}</option>
+                            {% endfor %}
+                            </select>
+                            <div class="input-group-append" height="100%">
+                                <a type="button" class="btn" href="/entity/artists/{{ data.2 }}">See artist</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="name" class="col-form-label">Type</label>
+                            <input id="text" {% if role != 'staff' %}readonly{% endif %} value="{{ data[3] }}" type="text" class="form-control form-control-lg">
+                        </div>
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <div class="col-form-label" width="100%">Rentable</div>
+                            <div class="switch-button">
+                                <input type="checkbox" {% if role != 'staff' %}disabled{% endif %} {% if data.4 == True %}checked{% endif %} name="switch19" id="switch19">
+                                <span><label for="switch19"></label></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+<div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+        <div class="card">
+            <h5 class="card-header">Picture</h5>
+            <div class="card-body">
+                <a href="{{ data.5 }}"><img src="{{ data.5 }}" alt="{{ data.1 }}" width="100%"></a>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

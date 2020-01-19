@@ -1,0 +1,72 @@
+{% extends "public_template.html" %}
+
+{% block title %}{{ data[1] }} - Galleries{% endblock %}
+
+{% block category %}galleries{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="section-block" id="basicform">
+            <h3 class="section-title">{{ data[1] }} - Exhibits</h3>
+            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+        </div>
+        <div class="card">
+            <h5 class="card-header">Gallery</h5>
+            <div class="card-body">
+                <form>
+
+                <div class="form-group">
+                    <label for="name" class="col-form-label">Name</label>
+                    <input id="name" {% if role != 'staff' %}disabled{% endif %} value="{{ data[1] }}" type="text" class="form-control form-control-lg">
+                </div>
+                <div class="form-group">
+                    <label for="name" class="col-form-label">Street</label>
+                    <input id="name" {% if role != 'staff' %}disabled{% endif %} value="{{ data[2] }}" type="text" class="form-control form-control-lg">
+                </div>
+                <div class="form-group">
+                    <label for="name" class="col-form-label">City</label>
+                    <input id="name" {% if role != 'staff' %}disabled{% endif %} value="{{ data[3] }}" type="text" class="form-control form-control-lg">
+                </div>
+
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Rooms</h5>
+                <p>List of rooms in {{ data.1 }}</p>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped table-bordered second" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Room's name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in rooms %}
+                                <tr onclick="window.location='/entity/rooms/{{ r.0 }}'">
+                                    <td><a href="/entity/rooms/{{ r.0 }}">{{ r.2 }}</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Room's name</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

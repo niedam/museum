@@ -1,0 +1,84 @@
+{% extends "public_template.html" %}
+
+{% block title %}{{ data[1] }} {{ data[2] }} - Artists{% endblock %}
+
+{% block category %}artists{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="section-block" id="basicform">
+            <h3 class="section-title">{{ data[1] }} {{ data[2] }} - Artists</h3>
+            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+        </div>
+        <div class="card">
+            <h5 class="card-header">Artist</h5>
+            <div class="card-body">
+                <form>
+                    <div class="form-group row">
+
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="name" class="col-form-label">Surname</label>
+                            <input id="name" {% if role != 'staff' %}readonly{% endif %} value="{{ data[1] }}" type="text" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="name" class="col-form-label">Name</label>
+                            <input id="name" {% if role != 'staff' %}readonly{% endif %} value="{{ data[2] }}" type="text" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="name" class="col-form-label">Born</label>
+                            <input id="name" {% if role != 'staff' %}readonly{% endif %} value="{{ data[3] }}" type="date" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="name" class="col-form-label">Die</label>
+                            <input id="name" {% if role != 'staff' %}readonly{% endif %} value="{{ data[4] }}" type="date" class="form-control">
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Related Exhibits</h5>
+                <p>This example shows DataTables and the Buttons extension being used with the Bootstrap 4 framework providing the styling.</p>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped table-bordered second" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ex in exhibits %}
+                                <tr onclick="window.location='/entity/exhibits/{{ ex.0 }}'">
+                                    <td><a href="/entity/exhibits/{{ ex.0 }}">{{ ex.1 }}</a></td>
+                                    <td><a href="/entity/exhibits/{{ ex.0 }}">{{ ex.3 }}</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+{% endblock %}

@@ -37,16 +37,16 @@ def main_page():
         return "Hello visitor <a href='/logout'>logout</a>"
 
 
-@app.route('/get/<role>', methods=['GET'])
+@app.route('/get/<role>')
 def get_role(role):
     # User already has had role.
     if request.cookies.get('role') == 'staff' or request.cookies.get('role') == 'visitor':
-        return make_response(redirect('./'))
+        return make_response(redirect('/'))
     # Wrong role in GET request.
     if role != 'staff' and role != 'visitor':
-        return make_response(redirect('./'));
+        return make_response(redirect('/'));
     # Set user role.
-    response = make_response(redirect('./'), 302)
+    response = make_response(redirect('/'), 302)
     response.set_cookie('role', role)
     return response
 
@@ -58,7 +58,7 @@ def logout():
     resp.set_cookie('role', "")
     return resp
 
-@app.route('/entity/<entity>', methods=['GET'])
+@app.route('/table/<entity>', methods=['GET'])
 @role_required
 def list(entity):
     cur = conn.cursor()
@@ -66,19 +66,19 @@ def list(entity):
     if (entity == 'artists'):
         cur.execute("SELECT * FROM artists")
         records = cur.fetchall()
-        template = render_template("list_artists.html", **locals())
+        template = render_template("artist-table.html", **locals())
     elif (entity == 'exhibits'):
-            cur.execute("SELECT * FROM exhibits")
+            cur.execute("SELECT * FROM exhibits LEFT JOIN artists a on exhibits.artist = a.id")
             records = cur.fetchall()
-            template = render_template("list_exhibits.html", **locals())
+            template = render_template("exhibits-table.html", **locals())
     elif (entity == 'galleries'):
         cur.execute("SELECT * FROM galleries")
         records = cur.fetchall()
-        template = render_template("list_galleries.html", **locals())
+        template = render_template("galleries-table.html", **locals())
     elif (entity == 'institutions'):
         cur.execute("SELECT * FROM other_institution")
         records = cur.fetchall()
-        template = render_template("list_institution.html", **locals())
+        template = render_template("institutions-table.html", **locals())
     return template
 
 
@@ -86,11 +86,30 @@ def list(entity):
 @role_required
 def view(entity, id):
     cur = conn.cursor()
+    role = request.cookies.get('role')
     template = None
     if (entity == 'exhibits'):
         cur.execute(sql.SQL("SELECT * FROM exhibits WHERE id = %s"), [id])
         data = cur.fetchone()
-        template = render_template("view_exhibit.html", **locals())
+        cur.execute("SELECT id, surname, name FROM artists")
+        artists = cur.fetchall();
+        template = render_template("exhibits-entity.html", **locals())
+    elif (entity == 'artists'):
+        cur.execute(sql.SQL("SELECT * FROM artists WHERE id = %s"), [id])
+        data = cur.fetchone()
+        cur.execute(sql.SQL("SELECT * FROM exhibits WHERE artist = %s"), [id])
+        exhibits = cur.fetchall()
+        template = render_template("artist-entity.html", **locals())
+    elif entity == 'galleries':
+        cur.execute(sql.SQL("SELECT * FROM galleries WHERE id = %s"), [id])
+        data = cur.fetchone()
+        cur.execute(sql.SQL("SELECT * FROM rooms WHERE gallery = %s"), [id])
+        rooms = cur.fetchall()
+        template = render_template("galleries-entity.html", **locals())
+    elif entity == 'institutions':
+        cur.execute(sql.SQL("SELECT * FROM other_institution WHERE id = %s"), [id])
+        data = cur.fetchone()
+        template = render_template("institutions-entity.html", **locals())
     return template
 
 

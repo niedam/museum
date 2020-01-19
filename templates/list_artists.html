@@ -13,7 +13,7 @@
     <thead>
       <tr class="mdc-data-table__header-row">
         <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Name</th>
-        <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Surrname</th>
+        <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Surname</th>
         <th class="mdc-data-table__header-cell mdc-data-table__header-cell--numeric" role="columnheader" scope="col">Born</th>
         <th class="mdc-data-table__header-cell mdc-data-table__header-cell--numeric" role="columnheader" scope="col">Die</th>
       </tr>
@@ -23,7 +23,7 @@
 
     {% for d in records %}
       <tr class="mdc-data-table__row">
-        <td class="mdc-data-table__cell">{{d.1  }}</td>
+        <td class="mdc-data-table__cell"><a href="aa.html">{{d.1  }}</td>
         <td class="mdc-data-table__cell">{{d.2  }}</td>
         <td class="mdc-data-table__cell mdc-data-table__cell--numeric">{{ d.3}}</td>
         <td class="mdc-data-table__cell mdc-data-table__cell--numeric">{{ d.4}}</td>
