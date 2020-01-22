@@ -14,16 +14,17 @@
         <div class="card">
             <h5 class="card-header">Exhibit</h5>
             <div class="card-body">
-                <form>
+                <form action="/entity/exhibits/{{ data.0 }}" method="post">
 
                 <div class="form-group">
                     <label for="title" class="col-form-label">Title</label>
-                    <input id="title" {% if role != 'staff' %}readonly{% endif %} value="{{ data[1] }}" type="text" class="form-control form-control-lg">
+                    <input name="title" id="title" {% if role != 'staff' %}readonly{% endif %} value="{{ data[1] }}" type="text" class="form-control form-control-lg">
                 </div>
                     <div class="form-group">
                         <label for="input-select">Artist</label>
                         <div class="input-group mb-3">
-                            <select class="form-control form-control-lg" {% if role != 'staff' %}disabled{% endif %} id="artist" style="height: 100%">
+                            <select name="artist" class="form-control form-control-lg" {% if role != 'staff' %}disabled{% endif %} id="artist" style="height: 100%">
+                            <option value="0" {% if None == data.0 %}selected{% endif %}>Unknown artist</option>
                             {% for a in artists %}
                             <option value="{{ a.0 }}" {% if data.2 == a.0 %}selected{% endif %}>{{ a.1 }} {{ a.2 }}</option>
                             {% endfor %}
@@ -36,18 +37,24 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
-                            <label for="name" class="col-form-label">Type</label>
-                            <input id="text" {% if role != 'staff' %}readonly{% endif %} value="{{ data[3] }}" type="text" class="form-control form-control-lg">
+                            <label for="type" class="col-form-label">Type</label>
+                            <input name="type" id="type" {% if role != 'staff' %}readonly{% endif %} value="{{ data[3] }}" type="text" class="form-control form-control-lg">
                         </div>
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
                             <div class="col-form-label" width="100%">Rentable</div>
                             <div class="switch-button">
-                                <input type="checkbox" {% if role != 'staff' %}disabled{% endif %} {% if data.4 == True %}checked{% endif %} name="switch19" id="switch19">
-                                <span><label for="switch19"></label></span>
+                                <input name="rentable" value="rentable" type="checkbox" {% if role != 'staff' %}disabled{% endif %} {% if data.4 == True %}checked{% endif %} id="rentable">
+                                <span><label for="rentable"></label></span>
                             </div>
                         </div>
                     </div>
-
+                    {% if role == 'staff' %}
+                    <div class="form-group">
+                        <label for="picture_url" class="col-form-label">Picture URL</label>
+                        <input name="picture_url" id="picture_url" value="{{ data[5] }}" type="text" class="form-control form-control-lg">
+                    </div>
+                    <button class="btn btn-primary" type="submit">Save</button>
+                    {% endif %}
                 </form>
             </div>
         </div>
