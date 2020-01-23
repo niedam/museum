@@ -1,0 +1,38 @@
+{% extends "public_template.html" %}
+
+{% block title %}{{ data[2] }} - Room{% endblock %}
+
+{% block category %}institutions{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="section-block" id="basicform">
+            <h3 class="section-title">{{ data[2] }} - Room</h3>
+            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+        </div>
+        <div class="card">
+            <h5 class="card-header">Institution</h5>
+            <div class="card-body">
+                <form action="/entity/rooms/{{ data.0 }}" method="post">
+
+                <div class="form-group">
+                    <label for="name" class="col-form-label">Room's name</label>
+                    <input id="name" name="name" value="{{ data[2] }}" {% if role != 'staff' %}disabled{% endif %} type="text" class="form-control form-control-lg">
+                </div>
+                <div class="form-group">
+                    <label for="gallery" class="col-form-label">Gallery</label>
+                    <input id="gallery" name="gallery" value="{{ data[4] }}" readonly type="text" class="form-control form-control-lg">
+                </div>
+                <input name="gallery_id" hidden readonly value="{{ data[1] }}">
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}

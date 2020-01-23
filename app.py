@@ -4,7 +4,7 @@ import psycopg2
 from psycopg2 import sql
 
 from dbinfo import *
-from flask import Flask, request, make_response, render_template, redirect, send_from_directory
+from flask import Flask, request, make_response, render_template, redirect
 
 
 app = Flask(__name__)
@@ -26,10 +26,16 @@ def role_required(f):
     return wrap
 
 
+def check_none(atr):
+    if atr == '':
+        return None
+    return atr
+
 @app.route('/', methods=['GET'])
 @role_required
 def main_page():
-    return render_template("dashboard.html");
+    role = request.cookies.get('role')
+    return render_template("dashboard.html", **locals());
 
 
 @app.route('/get/<role>')
@@ -111,11 +117,15 @@ def postExhibits(cur, id, request):
     return make_response(redirect("/entity/exhibits/" + id), 303)
 
 def getArtist(id_ent, role):
-    cur = conn.cursor()
-    cur.execute(sql.SQL("SELECT * FROM artists WHERE id = %s"), [id_ent])
-    data = cur.fetchone()
-    cur.execute(sql.SQL("SELECT * FROM exhibits WHERE artist = %s"), [id_ent])
-    exhibits = cur.fetchall()
+    if id_ent != 'new':
+        cur = conn.cursor()
+        cur.execute(sql.SQL("SELECT * FROM artists WHERE id = %s"), [id_ent])
+        data = cur.fetchone()
+        cur.execute(sql.SQL("SELECT * FROM exhibits WHERE artist = %s"), [id_ent])
+        exhibits = cur.fetchall()
+    else:
+        data = ["new", "", "", "", ""]
+        exhibits = []
     return render_template("artist-entity.html", **locals())
 
 
@@ -134,33 +144,124 @@ def postArtist(id_ent, request):
     conn.commit()
     return make_response(redirect("/entity/artists/" + str(id_ent)), 303)
 
+def getGalleries(id_ent, role):
+    if id_ent != 'new':
+        cur = conn.cursor()
+        cur.execute(sql.SQL("SELECT id, name, COALESCE(street, ''), COALESCE(city, ''), "
+                    "COALESCE (zip_code, '')  FROM galleries WHERE id = %s"), [id_ent])
+        data = cur.fetchone()
+        cur.execute(sql.SQL("SELECT * FROM rooms WHERE gallery = %s"), [id_ent])
+        rooms = cur.fetchall()
+    else:
+        data = ["new", "", "", "", ""]
+        rooms = []
+    return render_template("galleries-entity.html", **locals())
+
+def postGalleries(id_ent, request):
+    name = check_none(request.form['name'])
+    street = check_none(request.form['street'])
+    city = check_none(request.form['city'])
+    zip = check_none(request.form['zip_code'])
+    cur = conn.cursor()
+    if id_ent == 'new':
+        cur.execute(sql.SQL("INSERT INTO galleries (name, street, city, zip_code)"
+                        "VALUES (%s, %s, %s, %s)"), [name, street, city, zip])
+    else:
+        cur.execute(sql.SQL("UPDATE galleries SET name = %s, street = %s, city = %s, zip_code = %s WHERE id = %s"),
+                    [name, street, city, zip, id_ent])
+    conn.commit()
+    return make_response(redirect("/entity/galleries/" + str(id_ent)), 303)
+
+
+def getInstitutions(id_ent, role):
+    if id_ent != 'new':
+        cur = conn.cursor()
+        cur.execute(sql.SQL("SELECT id, institution_name, COALESCE(street, ''), COALESCE(city, ''), "
+                    "COALESCE (zip_code, '')  FROM other_institution WHERE id = %s"), [id_ent])
+        data = cur.fetchone()
+        cur.execute(sql.SQL("SELECT * FROM rooms WHERE gallery = %s"), [id_ent])
+        rooms = cur.fetchall()
+    else:
+        data = ["new", "", "", "", ""]
+        rooms = []
+    return render_template("institutions-entity.html", **locals())
+
+
+def postInstitutions(id_ent, request):
+    name = check_none(request.form['name'])
+    street = check_none(request.form['street'])
+    city = check_none(request.form['city'])
+    zip = check_none(request.form['zip_code'])
+    cur = conn.cursor()
+    if id_ent == 'new':
+        cur.execute(sql.SQL("INSERT INTO other_institution (institution_name, street, city, zip_code)"
+                    "VALUES (%s, %s, %s, %s)"), [name, street, city, zip])
+    else:
+        cur.execute(sql.SQL("UPDATE other_institution SET institution_name = %s, street = %s, city = %s, zip_code = %s "
+                            "WHERE id = %s"), [name, street, city, zip, id_ent])
+    conn.commit()
+    return make_response(redirect("/entity/institutions/" + str(id_ent)), 303)
+
+
+def getRooms(id_ent, role, request):
+    cur = conn.cursor()
+    if id_ent != 'new':
+        cur.execute(sql.SQL("SELECT * FROM rooms LEFT JOIN galleries ON rooms.gallery = galleries.id  "
+                            "WHERE rooms.id = %s"), [id_ent])
+        data = cur.fetchone()
+    else:
+        cur.execute(sql.SQL("SELECT name FROM galleries where id = %s"), [request.args['gal']])
+        tmp = cur.fetchone()
+        data = ['new', request.args['gal'], str(), str(), tmp[0]]
+    return render_template("rooms-entity.html", **locals())
+
+def postRooms(id_ent, request):
+    name = check_none(request.form['name'])
+    gall = check_none(request.form['gallery_id'])
+    cur = conn.cursor()
+    if id_ent == 'new':
+        cur.execute(sql.SQL("INSERT INTO rooms (room, gallery) VALUES (%s, %s)"), [name, gall])
+    else:
+        cur.execute(sql.SQL("UPDATE rooms SET room = %s WHERE id = %s"), [name, id_ent])
+    conn.commit()
+    return make_response(redirect("/entity/galleries/" + str(gall)), 303)
+
+
+
+
 @app.route('/entity/<entity>/<id_ent>', methods=['GET', 'POST'])
 @role_required
 def view(entity, id_ent):
     cur = conn.cursor()
     role = request.cookies.get('role')
     template = None
-    if (entity == 'exhibits'):
+    if entity == 'exhibits':
         if request.method == 'GET':
             return getExhibits(cur, id_ent, role)
         elif role == 'staff':
             return postExhibits(cur, id_ent, request)
-    elif (entity == 'artists'):
+    elif entity == 'artists':
         if request.method == 'GET':
             return getArtist(id_ent, role)
         elif request.method == 'POST' and role == 'staff':
             return postArtist(id_ent, request)
     elif entity == 'galleries':
-        cur.execute(sql.SQL("SELECT * FROM galleries WHERE id = %s"), [id_ent])
-        data = cur.fetchone()
-        cur.execute(sql.SQL("SELECT * FROM rooms WHERE gallery = %s"), [id_ent])
-        rooms = cur.fetchall()
-        template = render_template("galleries-entity.html", **locals())
+        if request.method == 'GET':
+            return getGalleries(id_ent, role)
+        elif request.method == 'POST' and role == 'staff':
+            return postGalleries(id_ent, request)
     elif entity == 'institutions':
-        cur.execute(sql.SQL("SELECT * FROM other_institution WHERE id = %s"), [id_ent])
-        data = cur.fetchone()
-        template = render_template("institutions-entity.html", **locals())
+        if request.method == 'GET':
+            return getInstitutions(id_ent, role)
+        elif request.method == 'POST' and role == 'staff':
+            return postInstitutions(id_ent, request)
+    elif entity == 'rooms':
+        if request.method == 'GET':
+            return getRooms(id_ent, role, request)
+        elif request.method == 'POST' and role == 'staff':
+            return postRooms(id_ent, request)
     return template
+
 
 
 if __name__ == '__main__':

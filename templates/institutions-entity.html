@@ -14,21 +14,27 @@
         <div class="card">
             <h5 class="card-header">Institution</h5>
             <div class="card-body">
-                <form>
+                <form action="/entity/institutions/{{ data.0 }}" method="post">
 
                 <div class="form-group">
                     <label for="name" class="col-form-label">Name</label>
-                    <input id="name" value="{{ data[1] }}" {% if role != 'staff' %}disabled{% endif %} type="text" class="form-control form-control-lg">
+                    <input id="name" name="name" value="{{ data[1] }}" {% if role != 'staff' %}disabled{% endif %} type="text" class="form-control form-control-lg">
                 </div>
                 <div class="form-group">
-                    <label for="name" class="col-form-label">Street</label>
-                    <input id="name" value="{{ data[2] }}" {% if role != 'staff' %}disabled{% endif %} type="text" class="form-control form-control-lg">
+                    <label for="street" class="col-form-label">Street</label>
+                    <input id="street" name="street" value="{{ data[2] }}" {% if role != 'staff' %}disabled{% endif %} type="text" class="form-control form-control-lg">
                 </div>
                 <div class="form-group">
-                    <label for="name" class="col-form-label">City</label>
-                    <input id="name" value="{{ data[3] }}" {% if role != 'staff' %}disabled{% endif %} type="text" class="form-control form-control-lg">
+                    <label for="city" class="col-form-label">City</label>
+                    <input id="city" name="city" value="{{ data[3] }}" {% if role != 'staff' %}disabled{% endif %} type="text" class="form-control form-control-lg">
                 </div>
-
+                <div class="form-group">
+                    <label for="zip_code" class="col-form-label">Zip code</label>
+                    <input name="zip_code" id="zip_code" {% if role != 'staff' %}disabled{% endif %} value="{{ data[4] }}" type="text" class="form-control form-control-lg">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
                 </form>
             </div>
         </div>

@@ -14,19 +14,23 @@
         <div class="card">
             <h5 class="card-header">Gallery</h5>
             <div class="card-body">
-                <form action="">
+                <form action="/entity/galleries/{{ data.0 }}" method="post">
 
                 <div class="form-group">
                     <label for="name" class="col-form-label">Name</label>
-                    <input id="name" {% if role != 'staff' %}disabled{% endif %} value="{{ data[1] }}" type="text" class="form-control form-control-lg">
+                    <input name='name' id="name" {% if role != 'staff' %}disabled{% endif %} value="{{ data[1] }}" type="text" class="form-control form-control-lg">
                 </div>
                 <div class="form-group">
-                    <label for="name" class="col-form-label">Street</label>
-                    <input id="name" {% if role != 'staff' %}disabled{% endif %} value="{{ data[2] }}" type="text" class="form-control form-control-lg">
+                    <label for="street" class="col-form-label">Street</label>
+                    <input name="street" id="street" {% if role != 'staff' %}disabled{% endif %} value="{{ data[2] }}" type="text" class="form-control form-control-lg">
                 </div>
                 <div class="form-group">
-                    <label for="name" class="col-form-label">City</label>
-                    <input id="name" {% if role != 'staff' %}disabled{% endif %} value="{{ data[3] }}" type="text" class="form-control form-control-lg">
+                    <label for="city" class="col-form-label">City</label>
+                    <input name="city" id="city" {% if role != 'staff' %}disabled{% endif %} value="{{ data[3] }}" type="text" class="form-control form-control-lg">
+                </div>
+                <div class="form-group">
+                    <label for="zip_code" class="col-form-label">Zip code</label>
+                    <input name="zip_code" id="zip_code" {% if role != 'staff' %}disabled{% endif %} value="{{ data[4] }}" type="text" class="form-control form-control-lg">
                 </div>
                     <button class="btn btn-primary" type="submit">Save</button>
                 </form>
@@ -38,8 +42,13 @@
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Rooms</h5>
-                <p>List of rooms in {{ data.1 }}</p>
+                <p style="text-align:left;">
+                    <h5 class="mb-0">Rooms</h5>
+                    <p>List of rooms in {{ data.1 }}</p>
+                    <span style="float:right;">
+                        <a href="/entity/rooms/new?gal={{ data.0 }}" class="btn btn-success">New room</a>
+                    </span>
+                </p>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -62,8 +71,10 @@
                             </tr>
                         </tfoot>
                     </table>
+
                 </div>
             </div>
+
         </div>
     </div>
 
