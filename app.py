@@ -81,6 +81,10 @@ def list(entity):
         cur.execute("SELECT * FROM other_institution")
         records = cur.fetchall()
         template = render_template("institutions-table.html", **locals())
+    elif entity == 'events':
+        cur.execute("SELECT * FROM exhibits_history LEFT JOIN exhibits e on exhibits_history.exhibit = e.id")
+        records = cur.fetchall()
+        template = render_template("events-table.html", **locals())
     return template
 
 
@@ -226,8 +230,15 @@ def postRooms(id_ent, request):
     conn.commit()
     return make_response(redirect("/entity/galleries/" + str(gall)), 303)
 
-
-
+def getEvents(id_ent, role):
+    if id_ent != 'new':
+        cur = conn.cursor()
+        cur.execute(sql.SQL("SELECT * FROM exhibits_history WHERE id = %s"), [id_ent])
+        data = cur.fetchone()
+        cur.execute(sql.SQL("SELECT exhibits.id, title, name, surname FROM exhibits "
+                            "LEFT JOIN artists a on exhibits.artist = a.id"))
+        exhibits = cur.fetchall()
+    return render_template("events-entity.html", **locals())
 
 @app.route('/entity/<entity>/<id_ent>', methods=['GET', 'POST'])
 @role_required
@@ -260,6 +271,13 @@ def view(entity, id_ent):
             return getRooms(id_ent, role, request)
         elif request.method == 'POST' and role == 'staff':
             return postRooms(id_ent, request)
+    elif entity == 'events':
+        if request.method == 'GET':
+            return getEvents(id_ent, role)
+        elif request.method == 'POST' and role == 'staff':
+            return "bbb"
+    else:
+        return "tfu"
     return template
 
 

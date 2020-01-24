@@ -1,0 +1,68 @@
+{% extends "public_template.html" %}
+
+{% block title %}{{ data[1] }} {{ data[2] }} - events{% endblock %}
+
+{% block category %}events{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="section-block" id="basicform">
+            <h3 class="section-title">Exhibit's event</h3>
+            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+        </div>
+        <div class="card">
+            <h5 class="card-header">Event</h5>
+            <div class="card-body">
+                <form action="/entity/events/{{ data[0] }}" method="post">
+                    <div class="form-group row">
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="since" class="col-form-label">Since*</label>
+                            <input id="since" name="since" {% if role != 'staff' %}readonly{% endif %} value="{{ data[2] }}" type="date" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="to" class="col-form-label">To*</label>
+                            <input id="to" name="to" {% if role != 'staff' %}readonly{% endif %} value="{{ data[3] }}" type="date" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-select">Exhibit</label>
+                        <div class="input-group mb-3">
+                            <select name="exhibit" class="form-control form-control-lg" {% if role != 'staff' %}disabled{% endif %} id="artist" style="height: 100%">
+                            {% for ex in exhibits %}
+                                <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>"{{ ex.1 }}" - {{ ex.2 }} {{ ex.3 }}</option>
+                            {% endfor %}
+                            </select>
+                            <div class="input-group-append" height="100%">
+                                <a type="button" class="btn" href="/entity/exhibits/{{ data.1 }}">See exhibit</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="name" class="col-form-label">Surname</label>
+                            <input id="surname" name="surname" {% if role != 'staff' %}readonly{% endif %} value="{{ data[2] }}" type="text" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
+                            <label for="name" class="col-form-label">Name</label>
+                            <input id="name" name="name" {% if role != 'staff' %}readonly{% endif %} value="{{ data[1] }}" type="text" class="form-control">
+                        </div>
+                    </div>
+
+
+                    {% if role == 'staff' %}
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="submit">Save</button>
+                        </div>
+                    {% endif %}
+
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
+{% endblock %}
