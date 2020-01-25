@@ -1,6 +1,9 @@
 {% extends "public_template.html" %}
 
-{% block title %}{{ data[1] }} {{ data[2] }} - events{% endblock %}
+{% block title %}
+{% if id_ent == 'new' %}New exhibit's event{% endif %}
+{% if id_ent != 'new' %}Exhibit's event{% endif %}
+{% endblock %}
 
 {% block category %}events{% endblock %}
 
@@ -27,35 +30,101 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="input-select">Exhibit</label>
+                        <label for="action">Action*</label>
+                        <label class="custom-control custom-radio">
+                            <input type="radio" name="action" value="gallery" class="custom-control-input"
+                                   {% if data.4 != None %}checked{% endif %} onchange="show_form()" id="gallery_opt"
+                                   {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %}>
+                            <span class="custom-control-label">
+                                Exhibit in gallery
+                            </span>
+                        </label>
+                        <label class="custom-control custom-radio">
+                            <input type="radio" name="action" value="rent" class="custom-control-input"
+                                   {% if data.5 != None %}checked{% endif %} onchange="show_form()" id="rent_opt"
+                                   {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %}>
+                            <span class="custom-control-label">
+                                Rent
+                            </span>
+                        </label>
+                    </div>
+                    <div class="form-group" id="rent_form" {% if data.5 == None %}hidden="true"{% endif %}>
+                        <label for="inst_rent">Rent to*</label>
                         <div class="input-group mb-3">
-                            <select name="exhibit" class="form-control form-control-lg" {% if role != 'staff' %}disabled{% endif %} id="artist" style="height: 100%">
+                            <select name="inst_rent" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="inst_rent" style="height: 100%">
+                            <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
+                            {% for ins in institutions %}
+                                <option value="{{ ins.0 }}" {% if data.5 == ins.0 %}selected{% endif %}>{{ ins.1 }}</option>
+                            {% endfor %}
+                            </select>
+                            <div class="input-group-append" height="100%">
+                                <button type="button" class="btn" onclick="window.location=('/entity/institutions/' + document.getElementById('inst_rent').value)">See an institution</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="rent_what" {% if data.5 == None %}hidden="true"{% endif %}>
+                        <label for="exhibit">Exhibit*</label>
+                        <div class="input-group mb-3">
+                            <select name="exhibit" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="exhibit" style="height: 100%">
+                            <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
+                            {% for ex in exhibits_rentable %}
+                                <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>"{{ ex.1 }}" - {{ ex.2 }} {{ ex.3 }}</option>
+                            {% endfor %}
+                            </select>
+                            <div class="input-group-append" height="100%">
+                                <button type="button" class="btn" onclick="window.location=('/entity/exhibits/' + document.getElementById('exhibit').value)">See an exhibit</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="gall_form" {% if data.4 == None %}hidden="true"{% endif %}>
+                        <label for="gall_ex">Exhibit in*</label>
+                        <div class="input-group mb-3">
+                            <select name="gall_ex" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="gall_ex" style="height: 100%">
+                            <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
+                            {% for rm in rooms %}
+                                <option value="{{ rm.0 }}" {% if data.4 == rm.0 %}selected{% endif %}>{{ rm.2 }} - {{ rm.1 }}</option>
+                            {% endfor %}
+                            </select>
+                            <div class="input-group-append" height="100%">
+                                <button type="button" class="btn" onclick="window.location=('/entity/rooms/' + document.getElementById('gall_ex').value)">See a room</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="gall_what" {% if data.4 == None %}hidden="true"{% endif %}>
+                        <label for="exhibit">Exhibit*</label>
+                        <div class="input-group mb-3">
+                            <select name="exhibit" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="exhibit" style="height: 100%">
+                            <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
                             {% for ex in exhibits %}
                                 <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>"{{ ex.1 }}" - {{ ex.2 }} {{ ex.3 }}</option>
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <a type="button" class="btn" href="/entity/exhibits/{{ data.1 }}">See exhibit</a>
+                                <button type="button" class="btn" onclick="window.location=('/entity/exhibits/' + document.getElementById('exhibit').value)">See an exhibit</button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="form-group row">
-
-                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
-                            <label for="name" class="col-form-label">Surname</label>
-                            <input id="surname" name="surname" {% if role != 'staff' %}readonly{% endif %} value="{{ data[2] }}" type="text" class="form-control">
-                        </div>
-                        <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
-                            <label for="name" class="col-form-label">Name</label>
-                            <input id="name" name="name" {% if role != 'staff' %}readonly{% endif %} value="{{ data[1] }}" type="text" class="form-control">
-                        </div>
-                    </div>
-
-
+                    <script>
+                        function show_form() {
+                            document.getElementById("rent_form").hidden = true;
+                            document.getElementById("rent_what").hidden = true;
+                            document.getElementById("gall_form").hidden = true;
+                            document.getElementById("gall_what").hidden = true;
+                            if (document.getElementById("rent_opt").checked) {
+                                document.getElementById("rent_form").hidden = false;
+                                document.getElementById("rent_what").hidden = false;
+                            } else if (document.getElementById("gallery_opt").checked) {
+                                document.getElementById("gall_form").hidden = false;
+                                document.getElementById("gall_what").hidden = false;
+                            }
+                        }
+                    </script>
                     {% if role == 'staff' %}
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
+                            {% if data.0 != 'new' %}
+                                <a class="btn btn-danger" href="{{ request.path + '?del=0'}}">Delete</a>
+                            {% endif %}
                         </div>
                     {% endif %}
 

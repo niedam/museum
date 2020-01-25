@@ -8,8 +8,16 @@
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Data Tables - Print, Excel, CSV, PDF Buttons</h5>
-                <p>This example shows DataTables and the Buttons extension being used with the Bootstrap 4 framework providing the styling.</p>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
+                        <h5 class="mb-0">Galleries</h5>
+                        <p>List of museum's galleries.</p>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 text-right">
+                        {% if role == 'staff' %}
+                            <a href="/entity/galleries/new" class="btn btn-success">Add a gallery</a></div>
+                        {% endif %}
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">

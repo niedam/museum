@@ -12,8 +12,15 @@
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Data Tables - Print, Excel, CSV, PDF Buttons</h5>
-                <p>This example shows DataTables and the Buttons extension being used with the Bootstrap 4 framework providing the styling.</p>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
+                        <h5 class="mb-0">Exhibit's events</h5>
+                        <p>List of events.</p>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 text-right">
+                        {% if role == 'staff' %}<a href="/entity/events/new" class="btn btn-success">Add an event</a>{% endif %}
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -31,7 +38,7 @@
                                 <tr onclick="window.location='/entity/events/{{ d.0 }}'">
                                     <td><a href="/entity/events/{{ d.0 }}">{{ d.2 }}</a></td>
                                     <td><a href="/entity/events/{{ d.0 }}">{{ d.3 }}</a></td>
-                                    <td><a href="/entity/events/{{ d.0 }}">{{ d.8 }}</a></td>
+                                    <td><a href="/entity/events/{{ d.0 }}">{{ d.7 }}</a></td>
                                     <td><a href="/entity/events/{{ d.0 }}">
                                         {% if d.4 != None %}Exhibited in gallery{% endif %}
                                         {% if d.5 != None %}Rented{% endif %}

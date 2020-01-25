@@ -12,9 +12,18 @@
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Data Tables - Print, Excel, CSV, PDF Buttons</h5>
-                <p>This example shows DataTables and the Buttons extension being used with the Bootstrap 4 framework providing the styling.</p>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
+                        <h5 class="mb-0">Artists</h5>
+                        <p>List of all artist in database.</p>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 text-right">
+                        {% if role == 'staff' %}<a href="/entity/artists/new" class="btn btn-success">Add an artist</a>{% endif %}
+                    </div>
+                </div>
             </div>
+
+
             <div class="card-body">
                 <div class="table-responsive">
                     <table id="example" class="table table-striped table-bordered second" style="width:100%">
@@ -32,7 +41,10 @@
                                     <td><a href="/entity/artists/{{ d.0 }}">{{ d.2 }}</a></td>
                                     <td><a href="/entity/artists/{{ d.0 }}">{{ d.1 }}</a></td>
                                     <td><a href="/entity/artists/{{ d.0 }}">{{ d.3 }}</a></td>
-                                    <td><a href="/entity/artists/{{ d.0 }}">{{ d.4 }}</a></td>
+                                    <td><a href="/entity/artists/{{ d.0 }}">
+                                        {% if d.4 == None %}Alive{% endif %}
+                                        {% if d.4 != None %}{{ d.4 }}{% endif %}
+                                    </a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

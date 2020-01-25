@@ -17,7 +17,7 @@
                 <form action="/entity/galleries/{{ data.0 }}" method="post">
 
                 <div class="form-group">
-                    <label for="name" class="col-form-label">Name</label>
+                    <label for="name" class="col-form-label">Name*</label>
                     <input name='name' id="name" {% if role != 'staff' %}disabled{% endif %} value="{{ data[1] }}" type="text" class="form-control form-control-lg">
                 </div>
                 <div class="form-group">
@@ -32,23 +32,36 @@
                     <label for="zip_code" class="col-form-label">Zip code</label>
                     <input name="zip_code" id="zip_code" {% if role != 'staff' %}disabled{% endif %} value="{{ data[4] }}" type="text" class="form-control form-control-lg">
                 </div>
-                    <button class="btn btn-primary" type="submit">Save</button>
+                    {% if role == 'staff' %}
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="submit">Save</button>
+                            {% if data.0 != 'new' %}
+                                <a class="btn btn-danger" href="{{ request.path + '?del=0'}}">Delete</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </form>
             </div>
         </div>
 
 
     </div>
+    {% if data.0 != 'new' %}
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card">
             <div class="card-header">
-                <p style="text-align:left;">
-                    <h5 class="mb-0">Rooms</h5>
-                    <p>List of rooms in {{ data.1 }}</p>
-                    <span style="float:right;">
-                        <a href="/entity/rooms/new?gal={{ data.0 }}" class="btn btn-success">New room</a>
-                    </span>
-                </p>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
+                        <h5 class="mb-0">Rooms</h5>
+                        <p>List of rooms in {{ data.1 }}</p>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 text-right">
+                        {% if role == 'staff' %}
+                            <a href="/entity/rooms/new?gal={{ data.0 }}" class="btn btn-success">Add a room</a>
+                        {% endif %}
+                    </div>
+                </div>
+
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -77,7 +90,7 @@
 
         </div>
     </div>
-
+    {% endif %}
 
 </div>
 {% endblock %}
