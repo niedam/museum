@@ -1,8 +1,7 @@
 import psycopg2
 from psycopg2 import sql
 from dbinfo import *
-from flask import Flask, request, make_response, render_template, redirect
-
+from flask import Flask, request, make_response, render_template, redirect, url_for
 
 app = Flask(__name__)
 
@@ -43,35 +42,21 @@ def main_page():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.cookies.get('role') == 'staff':
-        return make_response(redirect("/"))
+        return make_response(redirect(url_for("main_page")))
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method == 'POST':
         if request.form['password'] == "12345":
-            response = make_response(redirect('/'))
+            response = make_response(redirect(url_for("main_page")))
             response.set_cookie('role', 'staff')
             return response
         else:
-            return make_response(redirect("/login"))
-
-
-@app.route('/get/<role>')
-def get_role(role):
-    # User already has had role.
-    if request.cookies.get('role') == 'staff' or request.cookies.get('role') == 'visitor':
-        return make_response(redirect('/'))
-    # Wrong role in GET request.
-    if role != 'staff' and role != 'visitor':
-        return make_response(redirect('/'));
-    # Set user role.
-    response = make_response(redirect('/'), 302)
-    response.set_cookie('role', role)
-    return response
+            return make_response(redirect(url_for("login")))
 
 
 @app.route('/logout')
 def logout():
-    resp = make_response(redirect('/'), 302)
+    resp = make_response(redirect(url_for("main_page")), 302)
     resp.set_cookie('role', "")
     return resp
 
@@ -81,41 +66,120 @@ def table(entity):
     role = request.cookies.get('role')
     cur = conn.cursor()
     template = None
-    #try:
-    no_exhibits, no_exhibited = notification()
-    size_no_exhibits, size_no_exhibited = len(no_exhibits), len(no_exhibited)
-    if (entity == 'artists'):
-        cur.execute("SELECT id, name, surname, born_date, die_date FROM artists")
-        records = cur.fetchall()
-        template = render_template("artist-table.html", **locals())
-    elif (entity == 'exhibits'):
-            cur.execute("SELECT e.id, title, artist, type, rentable, picture_url, a.id, COALESCE(a.name, ''), "
-                        "COALESCE(a.surname, '') FROM exhibits e LEFT JOIN artists a on e.artist = a.id")
+    try:
+        no_exhibits, no_exhibited = notification()
+        size_no_exhibits, size_no_exhibited = len(no_exhibits), len(no_exhibited)
+        if entity == 'artists':
+            cur.execute("SELECT id, name, surname, born_date, die_date FROM artists")
             records = cur.fetchall()
-            template = render_template("exhibits-table.html", **locals())
-    elif (entity == 'galleries'):
-        cur.execute("SELECT id, name, coalesce(street, ''), coalesce(city, ''), coalesce(zip_code, '') FROM galleries")
-        records = cur.fetchall()
-        template = render_template("galleries-table.html", **locals())
-    elif (entity == 'institutions'):
-        cur.execute("SELECT id, institution_name, coalesce(street, ''), coalesce(city, ''), "
-                    "coalesce(zip_code, '') FROM other_institution")
-        records = cur.fetchall()
-        template = render_template("institutions-table.html", **locals())
-    elif entity == 'events':
-        cur.execute("SELECT * FROM exhibits_history LEFT JOIN exhibits e on exhibits_history.exhibit = e.id")
-        records = cur.fetchall()
-        template = render_template("events-table.html", **locals())
-    #except:
-        #conn.rollback()
-        #return make_response(redirect('/table/' + str(entity)), 303)
+            template = render_template("artist-table.html", **locals())
+        elif entity == 'exhibits':
+                cur.execute("SELECT e.id, title, artist, type, rentable, picture_url, a.id, COALESCE(a.name, ''), "
+                            "COALESCE(a.surname, '') FROM exhibits e LEFT JOIN artists a on e.artist = a.id")
+                records = cur.fetchall()
+                template = render_template("exhibits-table.html", **locals())
+        elif entity == 'storage':
+            cur.execute("SELECT id, name, surname FROM artists")
+            art = cur.fetchall()
+            if 'since' in request.args and role == 'staff':
+                since = check_none(request.args['since'])
+            else:
+                since = None
+            if 'to' in request.args and role == 'staff':
+                to = check_none(request.args['to'])
+            else:
+                to = None
+            if 'a' in request.args:
+                artists = tuple(request.args.getlist('a'))
+            else:
+                artists = tuple()
+            cur.execute(sql.SQL("SELECT * FROM storage_query(%s , %s)"
+                        + (" WHERE id_a IN %s" if artists != tuple() else "")), ([since, to, artists] if artists != tuple() else [since, to]))
+            records = cur.fetchall()
+            template = render_template("storage-table.html", **locals())
+        elif (entity == 'galleries'):
+            cur.execute("SELECT id, name, coalesce(street, ''), coalesce(city, ''), coalesce(zip_code, '') FROM galleries")
+            records = cur.fetchall()
+            template = render_template("galleries-table.html", **locals())
+        elif (entity == 'institutions'):
+            cur.execute("SELECT id, institution_name, coalesce(street, ''), coalesce(city, ''), "
+                        "coalesce(zip_code, '') FROM other_institution")
+            records = cur.fetchall()
+            template = render_template("institutions-table.html", **locals())
+        elif entity == 'events':
+            cur.execute("SELECT id, name, surname FROM artists")
+            art = cur.fetchall()
+            cur.execute("SELECT id, name FROM galleries")
+            gal = cur.fetchall()
+            cur.execute("SELECT id, institution_name FROM other_institution")
+            otin = cur.fetchall()
+            since = ""
+            to = ""
+            gallery = []
+            artists = []
+            rent = []
+            if len(request.args) == 0:
+                if role == 'staff':
+                    cur.execute("SELECT * FROM exhibits_history LEFT JOIN exhibits e on exhibits_history.exhibit = e.id")
+                else:
+                    cur.execute("SELECT * FROM exhibits_history LEFT JOIN exhibits e on exhibits_history.exhibit = e.id "
+                                "WHERE current_date BETWEEN since_date AND to_date")
+            else:
+                query = "SELECT * FROM exhibits_history LEFT JOIN exhibits e on exhibits_history.exhibit = e.id WHERE TRUE "
+                if 'since' in request.args:
+                    since = check_none(request.args['since'])
+                    if since != None:
+                        query += "AND since_date >= date '" + str(since) + "' "
+                if 'to' in request.args:
+                    to = check_none(request.args['to'])
+                    if to != None:
+                        query += "AND to_date <= date '" + str(to) + "' "
+                if 'g' in request.args:
+                    gallery = check_none(request.args.getlist('g'))
+                    if gallery != None:
+                        gallery = [int(i) for i in gallery]
+                        q_gallery = "exhibited_in IN (" + str(gallery)[1:-1] + ") "
+                    else:
+                        q_gallery = "FALSE"
+                else:
+                    q_gallery = "FALSE"
+                if 'r' in request.args:
+                    rent = check_none(request.args.getlist('r'))
+                    if rent != None:
+                        rent = [int(i) for i in rent]
+                        q_rent = "rented_to IN (" + str(rent)[1:-1] + ")"
+                    else:
+                        q_rent = "FALSE"
+                else:
+                    q_rent = "FALSE"
+                if 'a' in request.args:
+                    artists = check_none(request.args.getlist('a'))
+                    if artists != None:
+                        artists = [int(i) for i in artists]
+                        query += "AND artist IN (" + str(artists)[1:-1] + ") "
+                if q_gallery != "FALSE" or q_rent != "FALSE":
+                    query += "AND (" + q_rent + " OR " + q_gallery + ") "
+                if role != 'staff':
+                    query += "AND current_date BETWEEN since_date AND to_date"
+                cur.execute(query)
+            records = cur.fetchall()
+            template = render_template("events-table.html", **locals())
+    except Exception as e:
+        conn.rollback()
+        return make_response(redirect(url_for("table", entity=entity)))
     return template
 
 
-def getExhibits(cur, id, role):
-    if id != 'new':
-        cur.execute(sql.SQL("SELECT * FROM exhibits WHERE id = %s"), [id])
+def getExhibits(cur, id_ent, role):
+    if id_ent == "0":
+        return make_response(redirect(url_for("table", entity="exhibits")))
+    if id_ent != 'new':
+        cur.execute(sql.SQL("SELECT * FROM exhibits WHERE id = %s"), [id_ent])
         data = cur.fetchone()
+        cur.execute(sql.SQL("SELECT * FROM exhibits_history WHERE exhibit = %s "
+                            "AND current_date BETWEEN since_date AND to_date"), [id_ent])
+        loc = cur.fetchall()
+        storage = True if len(loc) == 0 else False
     else:
         data = ["new", "", "", "", "", ""]
     cur.execute("SELECT id, surname, name FROM artists")
@@ -144,7 +208,7 @@ def postExhibits(cur, id, request):
         cur.execute(sql.SQL("INSERT INTO exhibits(title, artist, type, rentable, picture_url) " 
                             "VALUES (%s, %s, %s, %s, %s)"), [title, artist, type, rentable, picture_url])
     conn.commit()
-    return make_response(redirect("/entity/exhibits/" + id), 303)
+    return make_response(redirect(url_for("view", entity="exhibits", id_ent=id)), 303)
 
 
 def deleteExhibits(id_ent):
@@ -152,10 +216,12 @@ def deleteExhibits(id_ent):
     cur.execute(sql.SQL("DELETE FROM exhibits_history WHERE exhibit = %s"), [id_ent])
     cur.execute(sql.SQL("DELETE FROM exhibits CASCADE WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect('/table/exhibits'))
+    return make_response(redirect(url_for("table", entity="exhibits")))
 
 
 def getArtist(id_ent, role):
+    if id_ent == "0":
+        return make_response(redirect(url_for("table", entity="artists")))
     if id_ent != 'new':
         cur = conn.cursor()
         cur.execute(sql.SQL("SELECT * FROM artists WHERE id = %s"), [id_ent])
@@ -176,20 +242,26 @@ def postArtist(id_ent, request):
     born = check_none(request.form['born'])
     die = check_none(request.form['die'])
     cur = conn.cursor()
-    cur.execute(sql.SQL("UPDATE artists SET name = %s, surname = %s, born_date = %s, die_date = %s WHERE id = %s"),
+    if id_ent == 'new':
+        cur.execute(sql.SQL("INSERT INTO artists(name, surname, born_date, die_date) VALUES (%s, %s, %s, %s)"),
+                        [first, second, born, die])
+    else:
+        cur.execute(sql.SQL("UPDATE artists SET name = %s, surname = %s, born_date = %s, die_date = %s WHERE id = %s"),
                 [first, second, born, die, id_ent])
     conn.commit()
-    return make_response(redirect("/entity/artists/" + str(id_ent)), 303)
+    return make_response(redirect(url_for("table", entity="artists")), 303)
 
 
 def deleteArtist(id_ent):
     cur = conn.cursor()
     cur.execute(sql.SQL("DELETE FROM artists WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect('/table/artists'))
+    return make_response(redirect(url_for("table", entity="artists")))
 
 
 def getGalleries(id_ent, role):
+    if id_ent == "0":
+        return make_response(redirect(url_for("table", entity="galleries")))
     if id_ent != 'new':
         cur = conn.cursor()
         cur.execute(sql.SQL("SELECT id, name, COALESCE(street, ''), COALESCE(city, ''), "
@@ -218,7 +290,7 @@ def postGalleries(id_ent, request):
         cur.execute(sql.SQL("UPDATE galleries SET name = %s, street = %s, city = %s, zip_code = %s WHERE id = %s"),
                     [name, street, city, zip, id_ent])
     conn.commit()
-    return make_response(redirect("/entity/galleries/" + str(id_ent)), 303)
+    return make_response(redirect(url_for("view", entity="galleries", id_ent = id_ent)), 303)
 
 
 def deleteGalleries(id_ent):
@@ -228,10 +300,12 @@ def deleteGalleries(id_ent):
     cur.execute(sql.SQL("DELETE FROM rooms WHERE gallery = %s"), [id_ent])
     cur.execute(sql.SQL("DELETE FROM galleries WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect('/table/galleries'))
+    return make_response(redirect(url_for("table", entity="galleries")))
 
 
 def getInstitutions(id_ent, role):
+    if id_ent == "0":
+        return make_response(redirect(url_for("table", entity="institutions")))
     if id_ent != 'new':
         cur = conn.cursor()
         cur.execute(sql.SQL("SELECT id, institution_name, COALESCE(street, ''), COALESCE(city, ''), "
@@ -264,7 +338,7 @@ def postInstitutions(id_ent, request):
         cur.execute(sql.SQL("UPDATE other_institution SET institution_name = %s, street = %s, city = %s, zip_code = %s "
                             "WHERE id = %s"), [name, street, city, zip, id_ent])
     conn.commit()
-    return make_response(redirect("/entity/institutions/" + str(id_ent)), 303)
+    return make_response(redirect(url_for("view", entity="institutions", id_ent = id_ent)), 303)
 
 
 def deleteInstitutions(id_ent):
@@ -272,10 +346,12 @@ def deleteInstitutions(id_ent):
     cur.execute(sql.SQL("DELETE FROM exhibits_history WHERE rented_to = %s"), [id_ent])
     cur.execute(sql.SQL("DELETE FROM other_institution WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect('/table/institutions'))
+    return make_response(redirect(url_for("table", entity="institutions")))
 
 
 def getRooms(id_ent, role, request):
+    if id_ent == "0":
+        return make_response(redirect(url_for("table", entity="galleries")))
     cur = conn.cursor()
     if id_ent != 'new':
         cur.execute(sql.SQL("SELECT * FROM rooms LEFT JOIN galleries ON rooms.gallery = galleries.id  "
@@ -303,7 +379,7 @@ def postRooms(id_ent, request):
     else:
         cur.execute(sql.SQL("UPDATE rooms SET room = %s WHERE id = %s"), [name, id_ent])
     conn.commit()
-    return make_response(redirect("/entity/galleries/" + str(gall)), 303)
+    return make_response(redirect(url_for("view", entity="galleries", id_ent = gall)), 303)
 
 
 def deleteRooms(id_ent):
@@ -313,10 +389,12 @@ def deleteRooms(id_ent):
     cur.execute(sql.SQL("DELETE FROM exhibits_history WHERE exhibited_in = %s"), [id_ent])
     cur.execute(sql.SQL("DELETE FROM rooms WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect('/entity/galleries/' + str(gal)))
+    return make_response(url_for("view", entity="galleries", id_ent = gal))
 
 
 def getEvents(id_ent, role):
+    if id_ent == "0":
+        return make_response(redirect(url_for("table", entity="events")))
     cur = conn.cursor()
     if id_ent != 'new':
         cur.execute(sql.SQL("SELECT * FROM exhibits_history WHERE id = %s"), [id_ent])
@@ -353,28 +431,51 @@ def postEvents(id_ent, request):
     since = check_none(request.form["since"])
     to = check_none(request.form["to"])
     cur = conn.cursor()
-    if id_ent == 'new':
-        exhibit = request.form["exhibit"]
-        action = request.form["action"]
-        exhibited = None
-        rented = None
-        if action == "rent":
-            rented = request.form["inst_rent"]
-        elif action == "gallery":
-            exhibited = request.form["gall_ex"]
-        cur.execute(sql.SQL("INSERT INTO exhibits_history (exhibit, since_date, to_date, exhibited_in, rented_to) "
-                            "VALUES (%s, %s, %s, %s, %s)"), [exhibit, since, to, exhibited, rented])
-    else:
-        cur.execute(sql.SQL("UPDATE exhibits_history SET since_date = %s, to_date = %s WHERE id = %s"), [since, to, id_ent])
-    conn.commit()
-    return make_response(redirect("/table/events"), 303)
+    try:
+        if id_ent == 'new':
+            action = request.form["action"]
+            exhibited = None
+            rented = None
+            if action == "rent":
+                rented = int(request.form["inst_rent"])
+                exhibit = int(request.form["exhibit2"])
+            elif action == "gallery":
+                exhibited = int(request.form["gall_ex"])
+                exhibit = int(request.form["exhibit"])
+            cur.execute(sql.SQL("INSERT INTO exhibits_history (exhibit, since_date, to_date, exhibited_in, rented_to) "
+                                "VALUES (%s, %s, %s, %s, %s)"), [exhibit, since, to, exhibited, rented])
+        else:
+            cur.execute(sql.SQL("UPDATE exhibits_history SET since_date = %s, to_date = %s WHERE id = %s"), [since, to, id_ent])
+        conn.commit()
+    except psycopg2.Error as e:
+        if 'collision' not in e.pgerror:
+            raise e
+        conn.rollback()
+        no_exhibits, no_exhibited = notification()
+        size_no_exhibits, size_no_exhibited = len(no_exhibits), len(no_exhibited)
+        role = 'staff'
+        cur.execute(sql.SQL("SELECT exhibits.id, title, name, surname FROM exhibits "
+                            "LEFT JOIN artists a on exhibits.artist = a.id"))
+        exhibits = cur.fetchall()
+        cur.execute(sql.SQL("SELECT exhibits.id, title, name, surname FROM exhibits "
+                            "LEFT JOIN artists a on exhibits.artist = a.id WHERE rentable = TRUE"))
+        exhibits_rentable = cur.fetchall()
+        cur.execute(sql.SQL("SELECT * FROM other_institution"))
+        institutions = cur.fetchall()
+        cur.execute(sql.SQL("SELECT r.id, r.room, g.name FROM rooms r LEFT JOIN galleries g on r.gallery = g.id"))
+        rooms = cur.fetchall()
+        data = [id_ent, exhibit, request.form["since"], request.form["to"], exhibited, rented]
+        collision_b = True
+        return make_response(render_template("events-entity.html", **locals()), 303)
+    collision_b = False
+    return make_response(redirect(url_for("table", entity="events")), 303)
 
 
 def deleteEvents(id_ent):
     cur = conn.cursor()
     cur.execute(sql.SQL("DELETE FROM exhibits_history WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect('/table/events'))
+    return make_response(redirect(url_for("table", entity="events")))
 
 
 @app.route('/entity/<entity>/<id_ent>', methods=['GET', 'POST'])
@@ -427,7 +528,7 @@ def view(entity, id_ent):
                 return postEvents(id_ent, request)
         else:
             return "tfu"
-    except:
+    except psycopg2.Error:
         conn.rollback()
         return make_response(redirect(request.path + '?info=wrong'), 302)
     return template

@@ -1,6 +1,6 @@
 {% extends "public_template.html" %}
 
-{% block title %}{{ data[1] }} {{ data[2] }} - Artists{% endblock %}
+{% block title %}{% if id_ent == 'new' %}New artist{% endif %}{% if id_ent != 'new' %}{{ data[1] }} {{ data[2] }}{% endif %} - Artists{% endblock %}
 
 {% block category %}artists{% endblock %}
 
@@ -9,22 +9,62 @@
     <div class="row">
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="section-block" id="basicform">
-            <h3 class="section-title">{{ data[1] }} {{ data[2] }} - Artists</h3>
-            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+            <h3 class="section-title">{% if id_ent == 'new' %}New artist{% endif %}{% if id_ent != 'new' %}{{ data[1] }} {{ data[2] }}{% endif %} - Artists</h3>
         </div>
         <div class="card">
             <h5 class="card-header">Artist</h5>
+            <script type="application/javascript">
+                    function check_form() {
+                        var result = true;
+                        if (document.getElementById('name').value == "") {
+                            document.getElementById('name').classList.add("is-invalid");
+                            document.getElementById('inv_name').hidden = false;
+                            result = false;
+                        } else {
+                            document.getElementById('name').classList.remove("is-invalid");
+                            document.getElementById('inv_name').hidden = true;
+                        }
+                        if (document.getElementById('surname').value == "") {
+                            document.getElementById('surname').classList.add("is-invalid");
+                            document.getElementById('inv_surname').hidden = false;
+                            result = false;
+                        } else {
+                            document.getElementById('surname').classList.remove("is-invalid");
+                            document.getElementById('inv_surname').hidden = true;
+                        }
+                        if (document.getElementById('born').value == "") {
+                            document.getElementById('born').classList.add("is-invalid");
+                            document.getElementById('inv_born').hidden = false;
+                            result = false;
+                        } else {
+                            document.getElementById('born').classList.remove("is-invalid");
+                            document.getElementById('inv_born').hidden = true;
+                        }
+                        if (document.getElementById('born').value != "" && document.getElementById('die').value != ""
+                                && document.getElementById('born').value > document.getElementById('die').value) {
+                            document.getElementById('die').classList.add("is-invalid");
+                            document.getElementById('inv_die').hidden = false;
+                        } else {
+                            document.getElementById('die').classList.remove("is-invalid");
+                            document.getElementById('inv_die').hidden = true;
+                        }
+
+                        return result
+                    }
+                </script>
             <div class="card-body">
-                <form action="/entity/artists/{{ data[0] }}" method="post">
+                <form {% if role == 'staff' %}action="{{ url_for("view", entity="artists", id_ent=data.0) }}" method="post" onsubmit="return check_form() {% endif %}">
                     <div class="form-group row">
 
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
-                            <label for="name" class="col-form-label">Surname*</label>
+                            <label for="surname" class="col-form-label">Surname*</label>
                             <input id="surname" name="surname" {% if role != 'staff' %}readonly{% endif %} value="{{ data[2] }}" type="text" class="form-control">
+                            <div hidden="hidden" id="inv_surname" class="invalid-feedback">Please provide a valid text.</div>
                         </div>
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
                             <label for="name" class="col-form-label">Name*</label>
                             <input id="name" name="name" {% if role != 'staff' %}readonly{% endif %} value="{{ data[1] }}" type="text" class="form-control">
+                            <div hidden="hidden" id="inv_name" class="invalid-feedback">Please provide a valid text.</div>
                         </div>
                     </div>
 
@@ -32,17 +72,19 @@
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
                             <label for="born" class="col-form-label">Born*</label>
                             <input id="born" name="born" {% if role != 'staff' %}readonly{% endif %} value="{{ data[3] }}" type="date" class="form-control">
+                            <div hidden="hidden" id="inv_born" class="invalid-feedback">Please provide a valid date.</div>
                         </div>
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
                             <label for="die" class="col-form-label">Die</label>
                             <input id="die" name="die" {% if role != 'staff' %}readonly{% endif %} value="{{ data[4] }}" type="date" class="form-control">
+                            <div hidden="hidden" id="inv_die" class="invalid-feedback">Please provide die date after born.</div>
                         </div>
                     </div>
                     {% if role == 'staff' %}
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ request.path + '?del=0'}}">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for("view", entity="artists", id_ent=data.0) }}?del=0">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -58,7 +100,6 @@
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Related Exhibits</h5>
-                <p>This example shows DataTables and the Buttons extension being used with the Bootstrap 4 framework providing the styling.</p>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -71,9 +112,9 @@
                         </thead>
                         <tbody>
                             {% for ex in exhibits %}
-                                <tr onclick="window.location='/entity/exhibits/{{ ex.0 }}'">
-                                    <td><a href="/entity/exhibits/{{ ex.0 }}">{{ ex.1 }}</a></td>
-                                    <td><a href="/entity/exhibits/{{ ex.0 }}">{{ ex.3 }}</a></td>
+                                <tr onclick="window.location='{{ url_for("view", entity="exhibits", id_ent=data.0) }}'">
+                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=data.0) }}">{{ ex.1 }}</a></td>
+                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=data.0) }}">{{ ex.3 }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

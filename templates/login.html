@@ -34,9 +34,9 @@
     <!-- ============================================================== -->
     <div class="splash-container">
         <div class="card ">
-            <div class="card-header text-center"><a class="navbar-brand" href="/">Museum</a><span class="splash-description">Please enter your user information.</span></div>
+            <div class="card-header text-center"><a class="navbar-brand" href="{{ url_for("main_page") }}">Museum</a><span class="splash-description">Please enter your user information.</span></div>
             <div class="card-body">
-                <form action="/login" method="post">
+                <form action="{{ url_for("login") }}" method="post">
                     <div class="form-group">
                         <input name="user" class="form-control form-control-lg" id="username" type="text" placeholder="Username" autocomplete="off">
                     </div>

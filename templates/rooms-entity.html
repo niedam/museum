@@ -1,6 +1,8 @@
 {% extends "public_template.html" %}
 
-{% block title %}{{ data[2] }} - Room{% endblock %}
+{% block title %}
+    {% if id_ent == 'new' %}New room{% endif %}{% if id_ent != 'new' %}{{ data[2] }}{% endif %} - Rooms
+{% endblock %}
 
 {% block category %}galleries{% endblock %}
 
@@ -8,18 +10,18 @@
 <div class="row">
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="section-block" id="basicform">
-            <h3 class="section-title">{{ data[2] }} - Room</h3>
-            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+            <h3 class="section-title">{% if id_ent == 'new' %}New room{% endif %}{% if id_ent == 'new' %}{{ data[2] }}{% endif %} - Rooms</h3>
         </div>
         <div class="card">
-            <h5 class="card-header">Room</h5>
+            <h5 class="card-header">Rooms</h5>
             <div class="card-body">
-                <form action="/entity/rooms/{{ data.0 }}" method="post">
+                <form {% if role == 'staff' %}action="{{ url_for("view", entity="rooms", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
 
                 <div class="form-group">
-                    <label for="name" class="col-form-label">Room's name</label>
+                    <label for="name" class="col-form-label">Room's name*</label>
                     <input id="name" name="name" value="{{ data[2] }}" {% if role != 'staff' %}disabled{% endif %}
                            type="text" class="form-control form-control-lg">
+                    <div hidden="hidden" id="inv_name" class="invalid-feedback">Please provide valid text.</div>
                 </div>
                 <input name="gallery_id" hidden readonly value="{{ data[1] }}">
                 <div class="form-group">
@@ -27,7 +29,7 @@
                     <div class="input-group mb-3">
                         <input id="gallery" name="gallery" value="{{ data[4] }}" readonly type="text" class="form-control form-control-lg">
                         <div class="input-group-append" height="100%">
-                            <button type="button" class="btn" onclick="window.location=('/entity/galleries/{{ data[1] }}')">See a gallery</button>
+                            <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="galleries", id_ent=data.1) }}')">See a gallery</button>
                         </div>
                     </div>
                 </div>
@@ -35,7 +37,7 @@
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ request.path + '?del=0'}}">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for("view", entity="rooms", id_ent=data.0) }}?del=0">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -47,13 +49,29 @@
 
     </div>
 </div>
+
+<script type="application/javascript">
+    function check_form() {
+        var result = true;
+        if (document.getElementById('name').value == "") {
+            document.getElementById('name').classList.add("is-invalid");
+            document.getElementById('inv_name').hidden = false;
+            result = false;
+        } else {
+            document.getElementById('name').classList.remove("is-invalid");
+            document.getElementById('inv_name').hidden = true;
+        }
+        return result
+    }
+</script>
+
 {% if data.0 != 'new' %}
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Exhibited collections</h5>
-                    <p>This example shows DataTables and the Buttons extension being used with the Bootstrap 4 framework providing the styling.</p>
+                    <p>List of currently exhibited exhibits.</p>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -67,10 +85,10 @@
                             </thead>
                             <tbody>
                                 {% for ex in exhibits %}
-                                    <tr onclick="window.location='/entity/exhibits/{{ ex.0 }}'">
-                                        <td><a href="/entity/exhibits/{{ ex.0 }}">{{ ex.1 }}</a></td>
-                                        <td><a href="/entity/exhibits/{{ ex.0 }}">{{ ex.3 }}</a></td>
-                                        <td><a href="/entity/exhibits/{{ ex.0 }}">{{ ex.4 }}</a></td>
+                                    <tr onclick="window.location='{{ url_for("view", entity="exhibits", id_ent=ex.0) }}'">
+                                        <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.1 }}</a></td>
+                                        <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.3 }}</a></td>
+                                        <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.4 }}</a></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

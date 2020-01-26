@@ -1,0 +1,90 @@
+{% extends "public_template.html" %}
+
+{% block title %}Storage{% endblock %}
+
+{% block category %}storage{% endblock %}
+
+{% block content %}
+
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+        <form action="{{ url_for("table", entity="storage") }}" method="get">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
+                        <h5 class="mb-0">Storage</h5>
+                        <p>List of exhibits stored in the storage (not exhibited or rented).
+                        {% if role != 'staff' %}<br>Guests can only see the current status of the storage. {% endif %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-sm-12 col-lg-3 mb-3 mb-sm-3">
+                        <label for="since" class="col-form-label">Since</label>
+                        <input id="since" name="since" type="date" class="form-control" value="{{ since }}"
+                               {% if role != 'staff' %}disabled{% endif %}>
+                        <br>
+                        <label for="to" class="col-form-label">To</label>
+                        <input id="to" name="to" type="date" class="form-control" value="{{ to }}"
+                               {% if role != 'staff' %}disabled{% endif %}>
+                        <br>
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                    </div>
+                    <div class="col-sm-12 col-lg-3 mb-3 mb-sm-3">
+                        <label for="a" class="col-form-label">Artists</label>
+                        <select multiple name="a" class="form-control form-control-lg" id="a"
+                            style="height: 85%">
+                            {% for ar in art %}
+                                <option {% if ar in artists %}selected{% endif %} value="{{ ar.0 }}">{{ ar.1 }} {{ ar.2 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- data table  -->
+    <!-- ============================================================== -->
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped table-bordered second" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Artist</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in records %}
+                                <tr onclick="window.location='{{ url_for("view", entity="exhibits", id_ent=d.0) }}'">
+                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.1 }}</a></td>
+                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{% if d.2 != None %}{{ d.4 }} {{ d.3 }}{% endif %}{% if d.2 == None %} Unknown{% endif %}</a></td>
+                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.5 }}</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Title</th>
+                                <th>Artist</th>
+                                <th>Type</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- end data table  -->
+    <!-- ============================================================== -->
+
+{% endblock %}

@@ -28,7 +28,7 @@
         <!-- ============================================================== -->
          <div class="dashboard-header">
             <nav class="navbar navbar-expand-lg bg-white fixed-top">
-                <a class="navbar-brand" href="/">Museum</a>
+                <a class="navbar-brand" href="{{ url_for("main_page") }}">Museum</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -43,7 +43,7 @@
                                     <div class="notification-list">
                                         <div class="list-group">
                                             {% for artists in no_exhibits %}
-                                                <a href="/entity/artists/{{ artists.0 }}" class="list-group-item list-group-item-action">
+                                                <a href="{{ url_for("view", entity = "artists", id_ent = artists.0) }}" class="list-group-item list-group-item-action">
                                                 <div class="notification-info">
                                                     There are no works by
                                                     <span class="notification-list-user-name">{{ artists.1 }} {{ artists.2 }}</span>in the database.
@@ -52,7 +52,7 @@
                                             </a>
                                             {% endfor %}
                                             {% for artists in no_exhibited %}
-                                                <a href="/entity/events/new" class="list-group-item list-group-item-action">
+                                                <a href="{{ url_for("view", entity = "events", id_ent = 'new') }}" class="list-group-item list-group-item-action">
                                                 <div class="notification-info">
                                                     Works by
                                                     <span class="notification-list-user-name">{{ artists.1 }} {{ artists.2 }}</span>are not exhibited in any gallery.
@@ -70,17 +70,17 @@
                         </li>
 
                         <li class="nav-item dropdown nav-user">
-                            <a class="nav-link nav-user-img" href="#" id="navbarDropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="../assets/images/avatar-1.jpg" alt="" class="user-avatar-md rounded-circle"></a>
+                            <a class="nav-link nav-user-img" href="#" id="navbarDropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="{{ url_for('static', filename='assets/images/avatar-0.png') }}" alt="" class="user-avatar-md rounded-circle"></a>
                             <div class="dropdown-menu dropdown-menu-right nav-user-dropdown" aria-labelledby="navbarDropdownMenuLink2">
                                 <div class="nav-user-info">
                                     <h5 class="mb-0 text-white nav-user-name">Staff</h5>
                                 </div>
-                                <a class="dropdown-item" href="/logout"><i class="fas fa-power-off mr-2"></i>Logout</a>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-power-off mr-2"></i>Logout</a>
                             </div>
                         </li>
                         {% endif %}
                         {% if role != 'staff' %}
-                            <a href="/login" class="btn">Log in</a>
+                            <a href="{{ url_for('login') }}" class="btn">Log in</a>
                         {% endif %}
                     </ul>
 
@@ -106,31 +106,36 @@
                                 Menu
                             </li>
                             <li class="nav-item ">
-                                <a class="nav-link {% if self.category() == 'dashboard' %}active{% endif %}" href="/"><i class="fa fa-fw fas fa-tachometer-alt"></i>Dashboard <span class="badge badge-success">6</span></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if self.category() == 'artists' %}active{% endif %}" href="/table/artists"><i class="fas fa-fw fas fa-paint-brush"></i>Artists</a>
-                            </li>
-                            <li class="nav-divider">
-                                Exhibitions
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if self.category() == 'exhibits' %}active{% endif %}" href="/table/exhibits"><i class="fas fa-fw far fa-image"></i>Exhibits</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if self.category() == 'events' %}active{% endif %}" href="/table/events"><i class="fas fa-fw fa-box-open"></i>Exhibit's events</a>
+                                <a class="nav-link {% if self.category() == 'dashboard' %}active{% endif %}" href="{{ url_for("main_page") }}">
+                                    <i class="fa fa-fw fas fa-home"></i>Home<span class="badge badge-success">6</span></a>
                             </li>
                             <li class="nav-divider">
                                 Entities
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if self.category() == 'galleries' %}active{% endif %}" href="/table/galleries"><i class="fas fa-building fa-fw"></i>Galleries</a>
+                                <a class="nav-link {% if self.category() == 'artists' %}active{% endif %}" href="{{ url_for("table", entity = "artists") }}">
+                                    <i class="fas fa-fw fas fa-paint-brush"></i>Artists</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if self.category() == 'institutions' %}active{% endif %}" href="/table/institutions"><i class="fa-fw fas fa-university"></i>Other institutions</a>
+                                <a class="nav-link {% if self.category() == 'exhibits' %}active{% endif %}" href="{{ url_for("table", entity = "exhibits") }}"><i class="fas fa-fw far fa-image"></i>Exhibits</a>
                             </li>
                             <li class="nav-divider">
-                                Features
+                                Exhibitions
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if self.category() == 'galleries' %}active{% endif %}" href="{{ url_for("table", entity = "galleries") }}"><i class="fas fa-building fa-fw"></i>Galleries</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if self.category() == 'events' %}active{% endif %}" href="{{ url_for("table", entity = "events") }}"><i class="fa-fw far fa-calendar-alt"></i>Exhibit's events</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if self.category() == 'storage' %}active{% endif %}" href="{{ url_for("table", entity = "storage") }}"><i class="fas fa-fw fa-box-open"></i>Storage</a>
+                            </li>
+                            <li class="nav-divider">
+                                Cooperation
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if self.category() == 'institutions' %}active{% endif %}" href="{{ url_for("table", entity = "institutions") }}"><i class="fa-fw fas fa-university"></i>Other institutions</a>
                             </li>
                         </ul>
                     </div>
@@ -156,14 +161,7 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-                            Copyright © 2018 Concept. All rights reserved. Dashboard by <a href="https://colorlib.com/wp/">Colorlib</a>.
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-                            <div class="text-md-right footer-links d-none d-sm-block">
-                                <a href="javascript: void(0);">About</a>
-                                <a href="javascript: void(0);">Support</a>
-                                <a href="javascript: void(0);">Contact Us</a>
-                            </div>
+                            Theme by Concept. All rights reserved.
                         </div>
                     </div>
                 </div>

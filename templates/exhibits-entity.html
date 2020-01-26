@@ -8,17 +8,17 @@
 <div class="row">
     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
         <div class="section-block" id="basicform">
-            <h3 class="section-title">{{ data[1] }} - Exhibits</h3>
-            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
+            <h3 class="section-title">{% if id_ent == 'new' %}New exhibit{% endif %}{% if id_ent != 'new' %}{{ data[1] }}{% endif %} - Exhibits</h3>
         </div>
         <div class="card">
             <h5 class="card-header">Exhibit</h5>
             <div class="card-body">
-                <form action="/entity/exhibits/{{ data.0 }}" method="post">
+                <form {% if role == 'staff' %}action="{{ url_for("view", entity="exhibits", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
 
                 <div class="form-group">
                     <label for="title" class="col-form-label">Title*</label>
                     <input name="title" id="title" {% if role != 'staff' %}readonly{% endif %} value="{{ data[1] }}" type="text" class="form-control form-control-lg">
+                    <div hidden="hidden" id="inv_title" class="invalid-feedback">Please provide valid text.</div>
                 </div>
                     <div class="form-group">
                         <label for="input-select">Artist</label>
@@ -30,7 +30,7 @@
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <a type="button" class="btn" href="/entity/artists/{{ data.2 }}">See artist</a>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="artists", id_ent="") }}' + document.getElementById('artist').value)">See artist</button>
                             </div>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                             <input name="type" id="type" {% if role != 'staff' %}readonly{% endif %} value="{{ data[3] }}" type="text" class="form-control form-control-lg">
                         </div>
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
-                            <div class="col-form-label" width="100%">Rentable*</div>
+                            <div class="col-form-label" width="100%">Rentable</div>
                             <div class="switch-button">
                                 <input name="rentable" value="rentable" type="checkbox" {% if role != 'staff' %}disabled{% endif %} {% if data.4 == True %}checked{% endif %} id="rentable">
                                 <span><label for="rentable"></label></span>
@@ -55,15 +55,33 @@
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ request.path + '?del=0'}}">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for("view", entity="exhibits", id_ent=data.0) }}?del=0">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
                 </form>
             </div>
         </div>
+        {% if data.0 != 'new' %}
+        <div class="card">
+            <h5 class="card-header">Current location</h5>
+            <div class="card-body">
+                {% if storage == True %}
+                    <h3>Status: Exhibit in storage</h3>
+                {% endif %}
+                {% if storage == False and loc[0][4] != None %}
+                    <h3>Status: Exhibit in gallery
+                        <a class="btn" href="{{ url_for("view", entity="events", id_ent=loc[0][0]) }}">See more</a></h3>
+                {% endif %}
+                {% if storage == False and loc[0][5] != None %}
+                    <h3>Status: Exhibit rented
+                        <a class="btn" href="{{ url_for("view", entity="events", id_ent=loc[0][0]) }}">See more</a></h3>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
-<div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
         <div class="card">
             <h5 class="card-header">Picture</h5>
             <div class="card-body">
@@ -72,6 +90,19 @@
         </div>
     </div>
 
-
 </div>
+    <script type="application/javascript">
+                    function check_form() {
+                        var result = true;
+                        if (document.getElementById('title').value == "") {
+                            document.getElementById('title').classList.add("is-invalid");
+                            document.getElementById('inv_title').hidden = false;
+                            result = false;
+                        } else {
+                            document.getElementById('title').classList.remove("is-invalid");
+                            document.getElementById('inv_title').hidden = true;
+                        }
+                        return result
+                    }
+                </script>
 {% endblock %}

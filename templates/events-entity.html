@@ -13,20 +13,28 @@
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="section-block" id="basicform">
             <h3 class="section-title">Exhibit's event</h3>
-            <p>Use custom button styles for actions in forms, dialogs, and more with support for multiple sizes, states, and more.</p>
         </div>
         <div class="card">
             <h5 class="card-header">Event</h5>
             <div class="card-body">
-                <form action="/entity/events/{{ data[0] }}" method="post">
+                <form {% if role == 'staff' %}action="{{ url_for("view", entity="events", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
                     <div class="form-group row">
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
                             <label for="since" class="col-form-label">Since*</label>
                             <input id="since" name="since" {% if role != 'staff' %}readonly{% endif %} value="{{ data[2] }}" type="date" class="form-control">
+                            <div hidden="hidden" id="inv_since" class="invalid-feedback">Please provide a valid date.</div>
                         </div>
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
                             <label for="to" class="col-form-label">To*</label>
                             <input id="to" name="to" {% if role != 'staff' %}readonly{% endif %} value="{{ data[3] }}" type="date" class="form-control">
+                            <div hidden="hidden" id="inv_to" class="invalid-feedback">
+                                Please provide a valid date.</div>
+                            <div hidden="hidden" id="inv_to2" class="invalid-feedback">
+                                End of rental should be after beginning.</div>
+                            <div hidden="hidden" id="inv_to3" class="invalid-feedback">
+                                Rental may last for a maximum of 30 days.</div>
+
+
                         </div>
                     </div>
                     <div class="form-group">
@@ -48,6 +56,7 @@
                             </span>
                         </label>
                     </div>
+                    <div hidden="hidden" id="inv_actionn" class="invalid-feedback">Please provide a valid date.</div>
                     <div class="form-group" id="rent_form" {% if data.5 == None %}hidden="true"{% endif %}>
                         <label for="inst_rent">Rent to*</label>
                         <div class="input-group mb-3">
@@ -58,22 +67,24 @@
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('/entity/institutions/' + document.getElementById('inst_rent').value)">See an institution</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="institutions", id_ent="") }}' + document.getElementById('inst_rent').value)">See an institution</button>
                             </div>
+                            <div hidden="hidden" id="inv_inst_rent" class="invalid-feedback">Please select institution.</div>
                         </div>
                     </div>
                     <div class="form-group" id="rent_what" {% if data.5 == None %}hidden="true"{% endif %}>
-                        <label for="exhibit">Exhibit*</label>
+                        <label for="exhibit2">Exhibit*</label>
                         <div class="input-group mb-3">
-                            <select name="exhibit" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="exhibit" style="height: 100%">
+                            <select name="exhibit2" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="exhibit2" style="height: 100%">
                             <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
                             {% for ex in exhibits_rentable %}
                                 <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>"{{ ex.1 }}" - {{ ex.2 }} {{ ex.3 }}</option>
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('/entity/exhibits/' + document.getElementById('exhibit').value)">See an exhibit</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="exhibits", id_ent="") }}' + document.getElementById('exhibit').value)">See an exhibit</button>
                             </div>
+                            <div hidden="hidden" id="inv_exhibit2" class="invalid-feedback">Please select exhibit.</div>
                         </div>
                     </div>
                     <div class="form-group" id="gall_form" {% if data.4 == None %}hidden="true"{% endif %}>
@@ -86,22 +97,24 @@
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('/entity/rooms/' + document.getElementById('gall_ex').value)">See a room</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="rooms", id_ent='') }}' + document.getElementById('gall_ex').value)">See a room</button>
                             </div>
+                            <div hidden="hidden" id="inv_gall_ex" class="invalid-feedback">Please select room in gallery.</div>
                         </div>
                     </div>
                     <div class="form-group" id="gall_what" {% if data.4 == None %}hidden="true"{% endif %}>
                         <label for="exhibit">Exhibit*</label>
                         <div class="input-group mb-3">
                             <select name="exhibit" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="exhibit" style="height: 100%">
-                            <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
+                            <option value="0" {% if "" == data.1 %}selected{% endif %}>Select</option>
                             {% for ex in exhibits %}
                                 <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>"{{ ex.1 }}" - {{ ex.2 }} {{ ex.3 }}</option>
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('/entity/exhibits/' + document.getElementById('exhibit').value)">See an exhibit</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="exhibits", id_ent='') }}' + document.getElementById('exhibit').value)">See an exhibit</button>
                             </div>
+                            <div hidden="hidden" id="inv_exhibit" class="invalid-feedback">Please select exhibit.</div>
                         </div>
                     </div>
                     <script>
@@ -123,7 +136,7 @@
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ request.path + '?del=0'}}">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for("view", entity="events", id_ent=data.0) }}?del=0">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -133,5 +146,102 @@
         </div>
     </div>
     </div>
+
+    <script type="application/javascript">
+
+    {% if collision_b %}
+    window.onload = function () {
+        alert("Sorry, you can't add an event because the item is not available at this time.")
+    }
+    {% endif %}
+
+
+    function check_form() {
+        var result = true;
+        if (document.getElementById('since').value == "") {
+            document.getElementById('since').classList.add("is-invalid");
+            document.getElementById('inv_since').hidden = false;
+            result = false;
+        } else {
+            document.getElementById('since').classList.remove("is-invalid");
+            document.getElementById('inv_since').hidden = true;
+        }
+        if (document.getElementById('to').value == "") {
+            document.getElementById('to').classList.add("is-invalid");
+            document.getElementById('inv_to').hidden = false;
+            result = false;
+        } else {
+            document.getElementById('to').classList.remove("is-invalid");
+            document.getElementById('inv_to').hidden = true;
+        }
+        if (document.getElementById('since').value > document.getElementById('to').value) {
+            document.getElementById('to').classList.add("is-invalid");
+            document.getElementById('inv_to2').hidden = false;
+            result = false;
+        } else {
+            document.getElementById('inv_to2').hidden = true;
+        }
+        if (document.getElementById('rent_opt').checked && document.getElementById('since').value !== "" && document.getElementById('to').value !== "") {
+            let dt1 = new Date(document.getElementById('since').value)
+            let dt2 = new Date(document.getElementById('to').value)
+            diffr = Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
+            if (diffr > 30) {
+                document.getElementById('to').classList.add("is-invalid");
+                document.getElementById('inv_to3').hidden = false;
+                console.log(diffr)
+                result = false;
+            } else {
+                document.getElementById('inv_to3').hidden = true;
+            }
+        }
+
+        if (!document.getElementById('rent_opt').checked && !document.getElementById('gallery_opt').checked) {
+            document.getElementById('rent_opt').classList.add("is-invalid");
+            document.getElementById('gallery_opt').classList.add("is-invalid");
+            document.getElementById('inv_actionn').hidden = false;
+            result = false;
+        } else {
+            document.getElementById('rent_opt').classList.remove("is-invalid");
+            document.getElementById('gallery_opt').classList.remove("is-invalid");
+            document.getElementById('inv_actionn').hidden = true;
+            if (document.getElementById('gallery_opt').checked) {
+                if (document.getElementById("gall_ex").value == 0) {
+                    document.getElementById('gall_ex').classList.add("is-invalid");
+                    document.getElementById('inv_gall_ex').hidden = false;
+                    result = false;
+                } else {
+                    document.getElementById('gall_ex').classList.remove("is-invalid");
+                    document.getElementById('inv_gall_ex').hidden = true;
+                }
+                if (document.getElementById("exhibit").value == 0) {
+                    document.getElementById('exhibit').classList.add("is-invalid");
+                    document.getElementById('inv_exhibit').hidden = false;
+                    result = false;
+                } else {
+                    document.getElementById('exhibit').classList.remove("is-invalid");
+                    document.getElementById('inv_exhibit').hidden = true;
+                }
+            } else if (document.getElementById("rent_opt").checked) {
+                if (document.getElementById("inst_rent").value == 0) {
+                    document.getElementById('inst_rent').classList.add("is-invalid");
+                    document.getElementById('inv_inst_rent').hidden = false;
+                    result = false;
+                } else {
+                    document.getElementById('rent_ex').classList.remove("is-invalid");
+                    document.getElementById('inv_rent_ex').hidden = true;
+                }
+                if (document.getElementById("exhibit2").value == 0) {
+                    document.getElementById('exhibit2').classList.add("is-invalid");
+                    document.getElementById('inv_exhibit2').hidden = false;
+                    result = false;
+                } else {
+                    document.getElementById('exhibit2').classList.remove("is-invalid");
+                    document.getElementById('inv_exhibit2').hidden = true;
+                }
+            }
+        }
+        return result
+    }
+</script>
 
 {% endblock %}
