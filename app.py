@@ -208,7 +208,7 @@ def postExhibits(cur, id, request):
         cur.execute(sql.SQL("INSERT INTO exhibits(title, artist, type, rentable, picture_url) " 
                             "VALUES (%s, %s, %s, %s, %s)"), [title, artist, type, rentable, picture_url])
     conn.commit()
-    return make_response(redirect(url_for("view", entity="exhibits", id_ent=id)), 303)
+    return make_response(redirect(url_for("table", entity="exhibits") + "?succ=0"), 303)
 
 
 def deleteExhibits(id_ent):
@@ -216,7 +216,7 @@ def deleteExhibits(id_ent):
     cur.execute(sql.SQL("DELETE FROM exhibits_history WHERE exhibit = %s"), [id_ent])
     cur.execute(sql.SQL("DELETE FROM exhibits CASCADE WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect(url_for("table", entity="exhibits")))
+    return make_response(redirect(url_for("table", entity="exhibits") + "?dell=0"))
 
 
 def getArtist(id_ent, role):
@@ -249,14 +249,14 @@ def postArtist(id_ent, request):
         cur.execute(sql.SQL("UPDATE artists SET name = %s, surname = %s, born_date = %s, die_date = %s WHERE id = %s"),
                 [first, second, born, die, id_ent])
     conn.commit()
-    return make_response(redirect(url_for("table", entity="artists")), 303)
+    return make_response(redirect(url_for("table", entity="artists") + '?succ=0'), 303)
 
 
 def deleteArtist(id_ent):
     cur = conn.cursor()
     cur.execute(sql.SQL("DELETE FROM artists WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect(url_for("table", entity="artists")))
+    return make_response(redirect(url_for("table", entity="artists") + "?dell=0"))
 
 
 def getGalleries(id_ent, role):
@@ -290,7 +290,7 @@ def postGalleries(id_ent, request):
         cur.execute(sql.SQL("UPDATE galleries SET name = %s, street = %s, city = %s, zip_code = %s WHERE id = %s"),
                     [name, street, city, zip, id_ent])
     conn.commit()
-    return make_response(redirect(url_for("view", entity="galleries", id_ent = id_ent)), 303)
+    return make_response(redirect(url_for("table", entity="galleries") + '?succ=0'), 303)
 
 
 def deleteGalleries(id_ent):
@@ -300,7 +300,7 @@ def deleteGalleries(id_ent):
     cur.execute(sql.SQL("DELETE FROM rooms WHERE gallery = %s"), [id_ent])
     cur.execute(sql.SQL("DELETE FROM galleries WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect(url_for("table", entity="galleries")))
+    return make_response(redirect(url_for("table", entity="galleries") + "?dell=0"))
 
 
 def getInstitutions(id_ent, role):
@@ -338,7 +338,7 @@ def postInstitutions(id_ent, request):
         cur.execute(sql.SQL("UPDATE other_institution SET institution_name = %s, street = %s, city = %s, zip_code = %s "
                             "WHERE id = %s"), [name, street, city, zip, id_ent])
     conn.commit()
-    return make_response(redirect(url_for("view", entity="institutions", id_ent = id_ent)), 303)
+    return make_response(redirect(url_for("table", entity="institutions") + "?succ=0"), 303)
 
 
 def deleteInstitutions(id_ent):
@@ -346,7 +346,7 @@ def deleteInstitutions(id_ent):
     cur.execute(sql.SQL("DELETE FROM exhibits_history WHERE rented_to = %s"), [id_ent])
     cur.execute(sql.SQL("DELETE FROM other_institution WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect(url_for("table", entity="institutions")))
+    return make_response(redirect(url_for("table", entity="institutions") + "?dell=0"))
 
 
 def getRooms(id_ent, role, request):
@@ -379,7 +379,7 @@ def postRooms(id_ent, request):
     else:
         cur.execute(sql.SQL("UPDATE rooms SET room = %s WHERE id = %s"), [name, id_ent])
     conn.commit()
-    return make_response(redirect(url_for("view", entity="galleries", id_ent = gall)), 303)
+    return make_response(redirect(url_for("view", entity="galleries", id_ent=gall) + "?succ=0"), 303)
 
 
 def deleteRooms(id_ent):
@@ -389,7 +389,7 @@ def deleteRooms(id_ent):
     cur.execute(sql.SQL("DELETE FROM exhibits_history WHERE exhibited_in = %s"), [id_ent])
     cur.execute(sql.SQL("DELETE FROM rooms WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(url_for("view", entity="galleries", id_ent = gal))
+    return make_response(redirect(url_for("view", entity="galleries", id_ent = gal) + "?dell=0"))
 
 
 def getEvents(id_ent, role):
@@ -430,18 +430,19 @@ def getEvents(id_ent, role):
 def postEvents(id_ent, request):
     since = check_none(request.form["since"])
     to = check_none(request.form["to"])
+    action = request.form["action"]
+    exhibited = None
+    rented = None
+    exhibit = None
+    if action == "rent":
+        rented = int(request.form["inst_rent"])
+        exhibit = int(request.form["exhibit2"])
+    elif action == "gallery":
+        exhibited = int(request.form["gall_ex"])
+        exhibit = int(request.form["exhibit"])
     cur = conn.cursor()
     try:
         if id_ent == 'new':
-            action = request.form["action"]
-            exhibited = None
-            rented = None
-            if action == "rent":
-                rented = int(request.form["inst_rent"])
-                exhibit = int(request.form["exhibit2"])
-            elif action == "gallery":
-                exhibited = int(request.form["gall_ex"])
-                exhibit = int(request.form["exhibit"])
             cur.execute(sql.SQL("INSERT INTO exhibits_history (exhibit, since_date, to_date, exhibited_in, rented_to) "
                                 "VALUES (%s, %s, %s, %s, %s)"), [exhibit, since, to, exhibited, rented])
         else:
@@ -468,14 +469,14 @@ def postEvents(id_ent, request):
         collision_b = True
         return make_response(render_template("events-entity.html", **locals()), 303)
     collision_b = False
-    return make_response(redirect(url_for("table", entity="events")), 303)
+    return make_response(redirect(url_for("table", entity="events") + '?succ=0'), 303)
 
 
 def deleteEvents(id_ent):
     cur = conn.cursor()
     cur.execute(sql.SQL("DELETE FROM exhibits_history WHERE id = %s"), [id_ent])
     conn.commit()
-    return make_response(redirect(url_for("table", entity="events")))
+    return make_response(redirect(url_for("table", entity="events") + "?dell=0"))
 
 
 @app.route('/entity/<entity>/<id_ent>', methods=['GET', 'POST'])
@@ -530,7 +531,7 @@ def view(entity, id_ent):
             return "tfu"
     except psycopg2.Error:
         conn.rollback()
-        return make_response(redirect(request.path + '?info=wrong'), 302)
+        return make_response(redirect(url_for("view", entity=entity, id_ent=id_ent) + '?wrong=0'), 302)
     return template
 
 

@@ -1,6 +1,8 @@
 {% extends "public_template.html" %}
 
-{% block title %}{% if id_ent == 'new' %}New gallery{% endif %}{% if id_ent != 'new' %}{{ data[1] }}{% endif %} - Galleries{% endblock %}
+{% block title %}
+    {% if id_ent == 'new' %}New gallery{% endif %}{% if id_ent != 'new' %}{{ data[1] }}{% endif %} - Galleries
+{% endblock %}
 
 {% block category %}galleries{% endblock %}
 

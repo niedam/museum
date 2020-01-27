@@ -42,7 +42,7 @@
                         <label class="custom-control custom-radio">
                             <input type="radio" name="action" value="gallery" class="custom-control-input"
                                    {% if data.4 != None %}checked{% endif %} onchange="show_form()" id="gallery_opt"
-                                   {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %}>
+                                   {% if role != 'staff' or (id_ent != 'new' and data.4 == None) %}disabled{% endif %}>
                             <span class="custom-control-label">
                                 Exhibit in gallery
                             </span>
@@ -50,7 +50,7 @@
                         <label class="custom-control custom-radio">
                             <input type="radio" name="action" value="rent" class="custom-control-input"
                                    {% if data.5 != None %}checked{% endif %} onchange="show_form()" id="rent_opt"
-                                   {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %}>
+                                   {% if role != 'staff' or (id_ent != 'new' and data.5 == None) %}disabled{% endif %}>
                             <span class="custom-control-label">
                                 Rent
                             </span>
@@ -60,8 +60,8 @@
                     <div class="form-group" id="rent_form" {% if data.5 == None %}hidden="true"{% endif %}>
                         <label for="inst_rent">Rent to*</label>
                         <div class="input-group mb-3">
-                            <select name="inst_rent" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="inst_rent" style="height: 100%">
-                            <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
+                            <select name="inst_rent" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}readonly{% endif %} id="inst_rent" style="height: 100%">
+                            {% if id_ent == 'new' %}<option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>{% endif %}
                             {% for ins in institutions %}
                                 <option value="{{ ins.0 }}" {% if data.5 == ins.0 %}selected{% endif %}>{{ ins.1 }}</option>
                             {% endfor %}
@@ -75,14 +75,17 @@
                     <div class="form-group" id="rent_what" {% if data.5 == None %}hidden="true"{% endif %}>
                         <label for="exhibit2">Exhibit*</label>
                         <div class="input-group mb-3">
-                            <select name="exhibit2" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="exhibit2" style="height: 100%">
-                            <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
+                            <select name="exhibit2" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}readonly{% endif %} id="exhibit2" style="height: 100%">
+                            {% if id_ent == 'new' %}<option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>{% endif %}
                             {% for ex in exhibits_rentable %}
-                                <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>"{{ ex.1 }}" - {{ ex.2 }} {{ ex.3 }}</option>
+                                <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>
+                                    "{{ ex.1 }}" (ID: {{ ex.0 }}) - {% if ex.2 != None %}{{ ex.2 }} {{ ex.3 }}{% endif %}
+                                    {% if ex.2 == None %} Artist unknown {% endif %}
+                                </option>
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="exhibits", id_ent="") }}' + document.getElementById('exhibit').value)">See an exhibit</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="exhibits", id_ent="") }}' + document.getElementById('exhibit2').value)">See an exhibit</button>
                             </div>
                             <div hidden="hidden" id="inv_exhibit2" class="invalid-feedback">Please select exhibit.</div>
                         </div>
@@ -90,8 +93,8 @@
                     <div class="form-group" id="gall_form" {% if data.4 == None %}hidden="true"{% endif %}>
                         <label for="gall_ex">Exhibit in*</label>
                         <div class="input-group mb-3">
-                            <select name="gall_ex" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="gall_ex" style="height: 100%">
-                            <option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>
+                            <select name="gall_ex" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}readonly{% endif %} id="gall_ex" style="height: 100%">
+                            {% if id_ent == 'new' %}<option value="0" {% if 'new' == data.0 %}selected{% endif %}>Select</option>{% endif %}
                             {% for rm in rooms %}
                                 <option value="{{ rm.0 }}" {% if data.4 == rm.0 %}selected{% endif %}>{{ rm.2 }} - {{ rm.1 }}</option>
                             {% endfor %}
@@ -105,10 +108,13 @@
                     <div class="form-group" id="gall_what" {% if data.4 == None %}hidden="true"{% endif %}>
                         <label for="exhibit">Exhibit*</label>
                         <div class="input-group mb-3">
-                            <select name="exhibit" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}disabled{% endif %} id="exhibit" style="height: 100%">
-                            <option value="0" {% if "" == data.1 %}selected{% endif %}>Select</option>
+                            <select name="exhibit" class="form-control form-control-lg" {% if role != 'staff' or id_ent != 'new' %}readonly="" {% endif %} id="exhibit" style="height: 100%">
+                            {% if id_ent == 'new' %}<option value="0" {% if "" == data.1 %}selected{% endif %}>Select</option>{% endif %}
                             {% for ex in exhibits %}
-                                <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>"{{ ex.1 }}" - {{ ex.2 }} {{ ex.3 }}</option>
+                                <option value="{{ ex.0 }}" {% if data.1 == ex.0 %}selected{% endif %}>
+                                    "{{ ex.1 }}" (ID: {{ ex.0 }}) - {% if ex.2 != None %}{{ ex.2 }} {{ ex.3 }}{% endif %}
+                                    {% if ex.2 == None %} Artist unknown {% endif %}
+                                </option>
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
@@ -152,24 +158,24 @@
     {% if collision_b %}
     window.onload = function () {
         alert("Sorry, you can't add an event because the item is not available at this time.")
-    }
+    };
     {% endif %}
 
 
     function check_form() {
         var result = true;
-        if (document.getElementById('since').value == "") {
+        if (document.getElementById('since').value === "") {
             document.getElementById('since').classList.add("is-invalid");
             document.getElementById('inv_since').hidden = false;
-            result = false;
+            return false
         } else {
             document.getElementById('since').classList.remove("is-invalid");
             document.getElementById('inv_since').hidden = true;
         }
-        if (document.getElementById('to').value == "") {
+        if (document.getElementById('to').value === "") {
             document.getElementById('to').classList.add("is-invalid");
             document.getElementById('inv_to').hidden = false;
-            result = false;
+            return false
         } else {
             document.getElementById('to').classList.remove("is-invalid");
             document.getElementById('inv_to').hidden = true;
@@ -177,29 +183,27 @@
         if (document.getElementById('since').value > document.getElementById('to').value) {
             document.getElementById('to').classList.add("is-invalid");
             document.getElementById('inv_to2').hidden = false;
-            result = false;
+            return false;
         } else {
             document.getElementById('inv_to2').hidden = true;
         }
         if (document.getElementById('rent_opt').checked && document.getElementById('since').value !== "" && document.getElementById('to').value !== "") {
-            let dt1 = new Date(document.getElementById('since').value)
-            let dt2 = new Date(document.getElementById('to').value)
-            diffr = Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
+            let dt1 = new Date(document.getElementById('since').value);
+            let dt2 = new Date(document.getElementById('to').value);
+            let diffr = Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
             if (diffr > 30) {
                 document.getElementById('to').classList.add("is-invalid");
                 document.getElementById('inv_to3').hidden = false;
-                console.log(diffr)
-                result = false;
+                return false;
             } else {
                 document.getElementById('inv_to3').hidden = true;
             }
         }
-
         if (!document.getElementById('rent_opt').checked && !document.getElementById('gallery_opt').checked) {
             document.getElementById('rent_opt').classList.add("is-invalid");
             document.getElementById('gallery_opt').classList.add("is-invalid");
             document.getElementById('inv_actionn').hidden = false;
-            result = false;
+            return false
         } else {
             document.getElementById('rent_opt').classList.remove("is-invalid");
             document.getElementById('gallery_opt').classList.remove("is-invalid");

@@ -36,7 +36,7 @@
                         <select multiple name="a" class="form-control form-control-lg" id="a"
                             style="height: 85%">
                             {% for ar in art %}
-                                <option {% if ar in artists %}selected{% endif %} value="{{ ar.0 }}">{{ ar.1 }} {{ ar.2 }}</option>
+                                <option {% if ar in artists %}selected{% endif %} value="{{ ar.0 }}">{{ ar.1 }} {{ ar.2 }} (ID: {{ ar.0 }})</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -57,6 +57,7 @@
                     <table id="example" class="table table-striped table-bordered second" style="width:100%">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Title</th>
                                 <th>Artist</th>
                                 <th>Type</th>
@@ -65,6 +66,7 @@
                         <tbody>
                             {% for d in records %}
                                 <tr onclick="window.location='{{ url_for("view", entity="exhibits", id_ent=d.0) }}'">
+                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.0 }}</a></td>
                                     <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.1 }}</a></td>
                                     <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{% if d.2 != None %}{{ d.4 }} {{ d.3 }}{% endif %}{% if d.2 == None %} Unknown{% endif %}</a></td>
                                     <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.5 }}</a></td>
@@ -73,6 +75,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
+                                <th>ID</th>
                                 <th>Title</th>
                                 <th>Artist</th>
                                 <th>Type</th>

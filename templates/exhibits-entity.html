@@ -1,6 +1,6 @@
 {% extends "public_template.html" %}
 
-{% block title %}{{ data[1] }} - Exhibits{% endblock %}
+{% block title %}{% if id_ent == 'new' %}New exhibit{% endif %}{% if id_ent != 'new' %}{{ data[1] }}{% endif %} - Exhibits{% endblock %}
 
 {% block category %}exhibits{% endblock %}
 
@@ -8,7 +8,7 @@
 <div class="row">
     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
         <div class="section-block" id="basicform">
-            <h3 class="section-title">{% if id_ent == 'new' %}New exhibit{% endif %}{% if id_ent != 'new' %}{{ data[1] }}{% endif %} - Exhibits</h3>
+            <h3 class="section-title">{% if id_ent == 'new' %}New exhibit{% endif %}{% if id_ent != 'new' %}{{ data[1] }} (ID: {{ data[0] }}){% endif %} - Exhibits</h3>
         </div>
         <div class="card">
             <h5 class="card-header">Exhibit</h5>
@@ -26,7 +26,7 @@
                             <select name="artist" class="form-control form-control-lg" {% if role != 'staff' %}disabled{% endif %} id="artist" style="height: 100%">
                             <option value="0" {% if None == data.0 %}selected{% endif %}>Unknown artist</option>
                             {% for a in artists %}
-                            <option value="{{ a.0 }}" {% if data.2 == a.0 %}selected{% endif %}>{{ a.1 }} {{ a.2 }}</option>
+                            <option value="{{ a.0 }}" {% if data.2 == a.0 %}selected{% endif %}>{{ a.1 }} {{ a.2 }} (ID: {{ a.0 }})</option>
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">

@@ -36,7 +36,7 @@
                         <select multiple name="a" class="form-control form-control-lg" id="a"
                             style="height: 85%">
                             {% for ar in art %}
-                                <option {% if ar.0 in artists %}selected{% endif %} value="{{ ar.0 }}">{{ ar.1 }} {{ ar.2 }}</option>
+                                <option {% if ar.0 in artists %}selected{% endif %} value="{{ ar.0 }}">{{ ar.1 }} {{ ar.2 }} (ID: {{ ar.0 }})</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -85,7 +85,7 @@
                                 <tr onclick="window.location='{{ url_for("view", entity="events", id_ent=d.0) }}'">
                                     <td><a href="{{ url_for("view", entity="events", id_ent=d.0) }}">{{ d.2 }}</a></td>
                                     <td><a href="{{ url_for("view", entity="events", id_ent=d.0) }}">{{ d.3 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="events", id_ent=d.0) }}">{{ d.7 }}</a></td>
+                                    <td><a href="{{ url_for("view", entity="events", id_ent=d.0) }}">{{ d.7 }} (ID: {{ d.1 }})</a></td>
                                     <td><a href="{{ url_for("view", entity="events", id_ent=d.0) }}">
                                         {% if d.4 != None %}Exhibited in gallery{% endif %}
                                         {% if d.5 != None %}Rented{% endif %}

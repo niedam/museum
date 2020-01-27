@@ -171,6 +171,9 @@
             <!-- ============================================================== -->
         </div>
     </div>
+
+
+
     <!-- ============================================================== -->
     <!-- end main wrapper -->
     <!-- ============================================================== -->
@@ -197,6 +200,35 @@
     <script src="https://cdn.datatables.net/rowgroup/1.0.4/js/dataTables.rowGroup.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
     <script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+    {% if 'succ' in request.args %}
+    <script>
+        window.onload = function () {
+            alert("You add new record.")
+        };
+    </script>
+    {% endif %}
+    {% if 'succ' in request.args %}
+    <script>
+        window.onload = function () {
+            alert("You add new record.")
+        };
+    </script>
+    {% endif %}
+    {% if 'wrong' in request.args %}
+    <script>
+        window.onload = function () {
+            alert("Unexpected error.")
+        };
+    </script>
+    {% endif %}
+    {% if 'dell' in request.args %}
+    <script>
+        window.onload = function () {
+            alert("You have removed record.")
+        };
+    </script>
+    {% endif %}
+
 </body>
  
 </html>
