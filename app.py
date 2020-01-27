@@ -46,7 +46,7 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method == 'POST':
-        if request.form['password'] == "12345":
+        if request.form['password'] == password_user:
             response = make_response(redirect(url_for("main_page")))
             response.set_cookie('role', 'staff')
             return response
