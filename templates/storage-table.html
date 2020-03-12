@@ -8,7 +8,7 @@
 
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card">
-        <form action="{{ url_for("table", entity="storage") }}" method="get">
+        <form action="{{ url_for("tables.table_storage") }}" method="get">
             <div class="card-header">
                 <div class="row">
                     <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
@@ -65,11 +65,11 @@
                         </thead>
                         <tbody>
                             {% for d in records %}
-                                <tr onclick="window.location='{{ url_for("view", entity="exhibits", id_ent=d.0) }}'">
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.0 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.1 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{% if d.2 != None %}{{ d.4 }} {{ d.3 }}{% endif %}{% if d.2 == None %} Unknown{% endif %}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.5 }}</a></td>
+                                <tr onclick="window.location='{{ url_for("views.entity_exhibits", id_ent=d.0) }}'">
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=d.0) }}">{{ d.0 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=d.0) }}">{{ d.1 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=d.0) }}">{% if d.2 != None %}{{ d.4 }} {{ d.3 }}{% endif %}{% if d.2 == None %} Unknown{% endif %}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=d.0) }}">{{ d.5 }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

@@ -15,7 +15,7 @@
         <div class="card">
             <h5 class="card-header">Gallery</h5>
             <div class="card-body">
-                <form {% if role == 'staff' %}action="{{ url_for("view", entity="galleries", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
+                <form {% if role == 'staff' %}action="{{ url_for("views.entity_galleries", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
 
                 <div class="form-group">
                     <label for="name" class="col-form-label">Name*</label>
@@ -38,7 +38,7 @@
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ url_for("view", entity="galleries", id_ent=data.0) }}?del=0">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for("views.entity_galleries", id_ent=data.0) }}?del=0">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -75,7 +75,7 @@
                     </div>
                     <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 text-right">
                         {% if role == 'staff' %}
-                            <a href="{{ url_for("view", entity="rooms", id_ent="new") }}?gal={{ data.0 }}" class="btn btn-success">Add a room</a>
+                            <a href="{{ url_for("views.entity_rooms", id_ent="new") }}?gal={{ data.0 }}" class="btn btn-success">Add a room</a>
                         {% endif %}
                     </div>
                 </div>
@@ -91,8 +91,8 @@
                         </thead>
                         <tbody>
                             {% for r in rooms %}
-                                <tr onclick="window.location='{{ url_for("view", entity="rooms", id_ent=r.0) }}'">
-                                    <td><a href="{{ url_for("view", entity="rooms", id_ent=r.0) }}">{{ r.2 }}</a></td>
+                                <tr onclick="window.location='{{ url_for("views.entity_rooms", id_ent=r.0) }}'">
+                                    <td><a href="{{ url_for("views.entity_rooms", id_ent=r.0) }}">{{ r.2 }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

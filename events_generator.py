@@ -13,24 +13,32 @@ except:
 cur = conn.cursor()
 
 
-print('2')
+print('6')
 
 def gener(ex, start, end):
     result = []
-    s = start
-    e = start
-    day = timedelta(days = 1)
+    day = timedelta(days=1)
+    s = start + day * randint(0,31)
+    e = s
+    cur.execute(sql.SQL("SELECT rentable FROM exhibits WHERE id = %s"), [ex])
+    rentable = cur.fetchone()[0]
     while s < end:
-        if randint(0, 1) == 0: # Exhibited
-            time = randint(0, 200)
+        if rentable:
+            if randint(0, 2) == 0: # Exhibited
+                time = randint(0, 100)
+                e = s + (time * day)
+                result += [[ex, s, e, randint(1,13), None]]
+                s = e + (randint(1, 30) * day)
+            else: #Rented
+                time = randint(0, 29)
+                e = s + (time * day)
+                result += [[ex, s, e, None, randint(1,7)]]
+                s = e + (randint(1, 45) * day)
+        else: #Exhibited
+            time = randint(0, 180)
             e = s + (time * day)
-            result += [[ex, s, e, randint(1,20), None]]
+            result += [[ex, s, e, randint(1, 13), None]]
             s = e + (randint(1, 30) * day)
-        else: #Rented
-            time = randint(0, 29)
-            e = s + (time * day)
-            result += [[ex, s, e, None, randint(1,7)]]
-            s = e + (randint(1, 45) * day)
     return result
 
 
@@ -38,7 +46,7 @@ def gener(ex, start, end):
 
 data = []
 for i in range(1, 87):
-    data += gener(i, datetime(year=2018,month=1,day=1), datetime(year=2020,month=5,day=31))
+    data += gener(i, datetime(year=2018,month=1,day=1), datetime(year=2020,month=5,day=1))
 
 
 

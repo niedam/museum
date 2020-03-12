@@ -44,6 +44,7 @@
                                 && document.getElementById('born').value > document.getElementById('die').value) {
                             document.getElementById('die').classList.add("is-invalid");
                             document.getElementById('inv_die').hidden = false;
+                            result = false
                         } else {
                             document.getElementById('die').classList.remove("is-invalid");
                             document.getElementById('inv_die').hidden = true;
@@ -53,7 +54,7 @@
                     }
                 </script>
             <div class="card-body">
-                <form {% if role == 'staff' %}action="{{ url_for("view", entity="artists", id_ent=data.0) }}" method="post" onsubmit="return check_form() {% endif %}">
+                <form {% if role == 'staff' %}action="{{ url_for("views.entity_artists", id_ent=data.0) }}" method="post" onsubmit="return check_form() {% endif %}">
                     <div class="form-group row">
 
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
@@ -84,7 +85,7 @@
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ url_for("view", entity="artists", id_ent=data.0) }}?del=0">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for("views.entity_artists", id_ent=data.0) }}?del=0">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -112,9 +113,9 @@
                         </thead>
                         <tbody>
                             {% for ex in exhibits %}
-                                <tr onclick="window.location='{{ url_for("view", entity="exhibits", id_ent=data.0) }}'">
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.1 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.3 }}</a></td>
+                                <tr onclick="window.location='{{ url_for("views.entity_exhibits", entity="exhibits", id_ent=data.0) }}'">
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=ex.0) }}">{{ ex.1 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=ex.0) }}">{{ ex.3 }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

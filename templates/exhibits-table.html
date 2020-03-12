@@ -18,7 +18,7 @@
                         <p>List of all exhibits in database.</p>
                     </div>
                     <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 text-right">
-                        {% if role == 'staff' %}<a href="{{ url_for("view", entity="exhibits", id_ent="new") }}" class="btn btn-success">Add an exhibit</a>{% endif %}</div>
+                        {% if role == 'staff' %}<a href="{{ url_for("views.entity_exhibits", id_ent="new") }}" class="btn btn-success">Add an exhibit</a>{% endif %}</div>
                 </div>
             </div>
             <div class="card-body">
@@ -34,11 +34,11 @@
                         </thead>
                         <tbody>
                             {% for d in records %}
-                                <tr onclick="window.location='{{ url_for("view", entity="exhibits", id_ent=d.0) }}'">
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.0 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.1 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{% if d.8 != None %}{{ d.8 }} {{ d.7 }}{% endif %}{% if d.8 == None %} Unknown{% endif %}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=d.0) }}">{{ d.3 }}</a></td>
+                                <tr onclick="window.location='{{ url_for("views.entity_exhibits", id_ent=d.0) }}'">
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=d.0) }}">{{ d.0 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=d.0) }}">{{ d.1 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=d.0) }}">{% if d.8 != None %}{{ d.8 }} {{ d.7 }}{% endif %}{% if d.8 == None %} Unknown{% endif %}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=d.0) }}">{{ d.3 }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

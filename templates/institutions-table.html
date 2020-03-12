@@ -15,7 +15,7 @@
                     </div>
                     <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 text-right">
                         {% if role == 'staff' %}
-                            <a href="{{ url_for("view", entity="institutions", id_ent="new") }}" class="btn btn-success">Add an institution</a>
+                            <a href="{{ url_for("views.entity_institutions", id_ent="new") }}" class="btn btn-success">Add an institution</a>
                         {% endif %}
                     </div>
                 </div>
@@ -32,10 +32,10 @@
                         </thead>
                         <tbody>
                             {% for d in records %}
-                                <tr onclick="window.location='{{ url_for("view", entity="institutions", id_ent=d.0) }}'">
-                                    <td><a href="{{ url_for("view", entity="institutions", id_ent=d.0) }}">{{ d.1 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="institutions", id_ent=d.0) }}">{{ d.2 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="institutions", id_ent=d.0) }}">{{ d.3 }}</a></td>
+                                <tr onclick="window.location='{{ url_for("views.entity_institutions", id_ent=d.0) }}'">
+                                    <td><a href="{{ url_for("views.entity_institutions", id_ent=d.0) }}">{{ d.1 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_institutions", id_ent=d.0) }}">{{ d.2 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_institutions", id_ent=d.0) }}">{{ d.3 }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

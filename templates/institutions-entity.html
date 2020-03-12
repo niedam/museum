@@ -15,7 +15,7 @@
         <div class="card">
             <h5 class="card-header">Institution</h5>
             <div class="card-body">
-                <form {% if role == 'staff' %} action="{{ url_for("view", entity="institutions", id_ent="new") }}" method="post" onsubmit="return check_form()" {% endif %}>
+                <form {% if role == 'staff' %} action="{{ url_for("views.entity_institutions", id_ent=id_ent) }}" method="post" onsubmit="return check_form()" {% endif %}>
 
                 <div class="form-group">
                     <label for="name" class="col-form-label">Name*</label>
@@ -38,7 +38,7 @@
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ request.path + '?del=0'}}">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for('views.entity_institutions', id_ent=id_ent) + '?del=0'}}">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -71,7 +71,6 @@
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Rented collections</h5>
-                <p>This example shows DataTables and the Buttons extension being used with the Bootstrap 4 framework providing the styling.</p>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -86,11 +85,11 @@
                         </thead>
                         <tbody>
                             {% for ex in exhibits %}
-                                <tr onclick="window.location='{{ url_for("view", entity="exhibits", id_ent=ex.0) }}'">
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.0 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.1 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.3 }}</a></td>
-                                    <td><a href="{{ url_for("view", entity="exhibits", id_ent=ex.0) }}">{{ ex.4 }}</a></td>
+                                <tr onclick="window.location='{{ url_for("views.entity_exhibits", id_ent=ex.0) }}'">
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=ex.0) }}">{{ ex.0 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=ex.0) }}">{{ ex.1 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=ex.0) }}">{{ ex.3 }}</a></td>
+                                    <td><a href="{{ url_for("views.entity_exhibits", id_ent=ex.0) }}">{{ ex.4 }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

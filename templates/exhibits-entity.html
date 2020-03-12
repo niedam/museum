@@ -13,7 +13,7 @@
         <div class="card">
             <h5 class="card-header">Exhibit</h5>
             <div class="card-body">
-                <form {% if role == 'staff' %}action="{{ url_for("view", entity="exhibits", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
+                <form {% if role == 'staff' %}action="{{ url_for("views.entity_exhibits", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
 
                 <div class="form-group">
                     <label for="title" class="col-form-label">Title*</label>
@@ -30,7 +30,7 @@
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="artists", id_ent="") }}' + document.getElementById('artist').value)">See artist</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("views.entity_artists", id_ent="") }}' + document.getElementById('artist').value)">See artist</button>
                             </div>
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ url_for("view", entity="exhibits", id_ent=data.0) }}?del=0">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for("views.entity_exhibits", id_ent=data.0) }}?del=0">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -71,11 +71,11 @@
                 {% endif %}
                 {% if storage == False and loc[0][4] != None %}
                     <h3>Status: Exhibit in gallery
-                        <a class="btn" href="{{ url_for("view", entity="events", id_ent=loc[0][0]) }}">See more</a></h3>
+                        <a class="btn" href="{{ url_for("views.entity_events", id_ent=loc[0][0]) }}">See more</a></h3>
                 {% endif %}
                 {% if storage == False and loc[0][5] != None %}
                     <h3>Status: Exhibit rented
-                        <a class="btn" href="{{ url_for("view", entity="events", id_ent=loc[0][0]) }}">See more</a></h3>
+                        <a class="btn" href="{{ url_for("views.entity_events", id_ent=loc[0][0]) }}">See more</a></h3>
                 {% endif %}
             </div>
         </div>

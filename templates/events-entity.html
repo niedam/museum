@@ -17,7 +17,7 @@
         <div class="card">
             <h5 class="card-header">Event</h5>
             <div class="card-body">
-                <form {% if role == 'staff' %}action="{{ url_for("view", entity="events", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
+                <form {% if role == 'staff' %}action="{{ url_for("views.entity_events", id_ent=data.0) }}" method="post" onsubmit="return check_form()" {% endif %}>
                     <div class="form-group row">
                         <div class="col-sm-12 col-lg-6 mb-5 mb-sm-0">
                             <label for="since" class="col-form-label">Since*</label>
@@ -30,7 +30,7 @@
                             <div hidden="hidden" id="inv_to" class="invalid-feedback">
                                 Please provide a valid date.</div>
                             <div hidden="hidden" id="inv_to2" class="invalid-feedback">
-                                End of rental should be after beginning.</div>
+                                End of event should be after beginning.</div>
                             <div hidden="hidden" id="inv_to3" class="invalid-feedback">
                                 Rental may last for a maximum of 30 days.</div>
 
@@ -67,7 +67,7 @@
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="institutions", id_ent="") }}' + document.getElementById('inst_rent').value)">See an institution</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("views.entity_institutions", id_ent="") }}' + document.getElementById('inst_rent').value)">See an institution</button>
                             </div>
                             <div hidden="hidden" id="inv_inst_rent" class="invalid-feedback">Please select institution.</div>
                         </div>
@@ -85,7 +85,7 @@
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="exhibits", id_ent="") }}' + document.getElementById('exhibit2').value)">See an exhibit</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("views.entity_exhibits", id_ent="") }}' + document.getElementById('exhibit2').value)">See an exhibit</button>
                             </div>
                             <div hidden="hidden" id="inv_exhibit2" class="invalid-feedback">Please select exhibit.</div>
                         </div>
@@ -100,7 +100,7 @@
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="rooms", id_ent='') }}' + document.getElementById('gall_ex').value)">See a room</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("views.entity_rooms", id_ent='') }}' + document.getElementById('gall_ex').value)">See a room</button>
                             </div>
                             <div hidden="hidden" id="inv_gall_ex" class="invalid-feedback">Please select room in gallery.</div>
                         </div>
@@ -118,7 +118,7 @@
                             {% endfor %}
                             </select>
                             <div class="input-group-append" height="100%">
-                                <button type="button" class="btn" onclick="window.location=('{{ url_for("view", entity="exhibits", id_ent='') }}' + document.getElementById('exhibit').value)">See an exhibit</button>
+                                <button type="button" class="btn" onclick="window.location=('{{ url_for("views.entity_exhibits", id_ent='') }}' + document.getElementById('exhibit').value)">See an exhibit</button>
                             </div>
                             <div hidden="hidden" id="inv_exhibit" class="invalid-feedback">Please select exhibit.</div>
                         </div>
@@ -142,7 +142,7 @@
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit">Save</button>
                             {% if data.0 != 'new' %}
-                                <a class="btn btn-danger" href="{{ url_for("view", entity="events", id_ent=data.0) }}?del=0">Delete</a>
+                                <a class="btn btn-danger" href="{{ url_for("views.entity_events", id_ent=data.0) }}?del=0">Delete</a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -167,7 +167,7 @@
         if (document.getElementById('since').value === "") {
             document.getElementById('since').classList.add("is-invalid");
             document.getElementById('inv_since').hidden = false;
-            return false
+            result = false;
         } else {
             document.getElementById('since').classList.remove("is-invalid");
             document.getElementById('inv_since').hidden = true;
@@ -175,7 +175,7 @@
         if (document.getElementById('to').value === "") {
             document.getElementById('to').classList.add("is-invalid");
             document.getElementById('inv_to').hidden = false;
-            return false
+            result = false;
         } else {
             document.getElementById('to').classList.remove("is-invalid");
             document.getElementById('inv_to').hidden = true;
@@ -183,7 +183,7 @@
         if (document.getElementById('since').value > document.getElementById('to').value) {
             document.getElementById('to').classList.add("is-invalid");
             document.getElementById('inv_to2').hidden = false;
-            return false;
+            result = false;
         } else {
             document.getElementById('inv_to2').hidden = true;
         }
@@ -194,7 +194,7 @@
             if (diffr > 30) {
                 document.getElementById('to').classList.add("is-invalid");
                 document.getElementById('inv_to3').hidden = false;
-                return false;
+                result = false;
             } else {
                 document.getElementById('inv_to3').hidden = true;
             }
@@ -203,7 +203,7 @@
             document.getElementById('rent_opt').classList.add("is-invalid");
             document.getElementById('gallery_opt').classList.add("is-invalid");
             document.getElementById('inv_actionn').hidden = false;
-            return false
+            result = false;
         } else {
             document.getElementById('rent_opt').classList.remove("is-invalid");
             document.getElementById('gallery_opt').classList.remove("is-invalid");
@@ -231,8 +231,10 @@
                     document.getElementById('inv_inst_rent').hidden = false;
                     result = false;
                 } else {
-                    document.getElementById('rent_ex').classList.remove("is-invalid");
-                    document.getElementById('inv_rent_ex').hidden = true;
+                    if (document.getElementById('inst_rent').classList.contains("is-invalid")) {
+                        document.getElementById('inst_rent').classList.remove("is-invalid");
+                    }
+                    document.getElementById('inv_inst_rent').hidden = true;
                 }
                 if (document.getElementById("exhibit2").value == 0) {
                     document.getElementById('exhibit2').classList.add("is-invalid");
